@@ -1,4 +1,4 @@
-function S = EPG_BM_shift_matrices(Nmax)
+function S = EPGX_BM_shift_matrices(Nmax)
 % Generates shift matrices up to order Nmax for 6 component 2 pool Bloch
 % McConnell case
 % Layout of state vector is [F0A F0*A Z0A F0B F0*B Z0B F1A F-1A Z1A F1B F-1B Z1B ... etc]

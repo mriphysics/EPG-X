@@ -1,5 +1,5 @@
 function [F0,Fn,Zn,F] = EPGX_GRE_MT(theta,phi,B1SqrdTau,TR,T1x,T2a,f,ka,G,varargin)
-%   [F0,Fn,Zn,F] = EPGX_GRE_MT(theta,phi,TR,T1x,T2x,f,ka,varargin)
+%   [F0,Fn,Zn,F] = EPGX_GRE_MT(theta,phi,B1SqrdTau,TR,T1x,T2a,f,ka,G,varargin)
 %
 %
 %
@@ -62,16 +62,18 @@ M0b = f;
 M0a = (1-f);
 kb = ka * M0a/M0b;
 
+R1a = 1/T1x(1);
+R1b = 1/T1x(2);
+R2a = 1/T2a;
+
 %%% handle no exchange case
 if (f==0)||(ka==0)
     ka = 0;
     kb = 0;
     M0b = 0;
+    R1b = 1e-3;%<- doesn't matter what it is, just avoid singular matrices
 end
 
-R1a = 1/T1x(1);
-R1b = 1/T1x(2);
-R2a = 1/T2a;
 
 %%% Build Shift matrix, S
 S = EPGX_MT_shift_matrices(kmax);
