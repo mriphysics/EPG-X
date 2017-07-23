@@ -1,5 +1,6 @@
-function [F0,Fn,Zn,F] = EPGX_TSE_BM(theta,B1SqrdTau,ESP,T1x,T2x,f,ka,varargin)
+function [F0,Fn,Zn,F] = EPGX_TSE_BM(theta,ESP,T1x,T2x,f,ka,varargin)
 %%%% Bloch McConnell TSE (6 components)
+%                       EPGX_TSE_BM(theta,ESP,T1x,T2x,f,ka,varargin)
 %
 %   Shaihan Malik 2017-07-21
 
