@@ -20,6 +20,7 @@ ss = [ss fliplr(ss)];
 s0 = zeros([1 16]);
 alphas = [s0 s0 ss ss s0 s0 ss]; 
 alphas=d2r(sin(alphas*pi/2)*40);
+
 npulse = length(alphas);
 
 %%% B1sqrdtau quoted from scanner
@@ -119,7 +120,7 @@ plot(abs(ssfp_mt(idx0,:))/(1-f),'-')
 % xlabel('RF pulse number')
 ylabel('$$\tilde{F}_0^a / M_0^a $$','Interpreter','latex')
 
-legend('EPG','EPG-MT','location','northwest')
+legend('EPG','EPG-X(MT)','location','northwest')
 grid on
 title('bSSFP signal \psi = 0')
 set(gca,'XTick',0:32:256)
@@ -132,7 +133,7 @@ plot(abs(ssfp_mt(idx50,:))/(1-f),'-')
 xlabel('RF pulse number')
 ylabel('$$\tilde{F}_0^a / M_0^a $$','Interpreter','latex')
 
-legend('EPG','EPG-MT','location','northwest')
+legend('EPG','EPG-X(MT)','location','northwest')
 grid on
 title('bSSFP signal \psi = \pi/2')
 set(gca,'XTick',0:32:256)
@@ -148,7 +149,7 @@ xlabel('RF pulse number')
 ylabel('$$\tilde{Z}_0^{a,b} / M_0$$','interpreter','latex')
 set(gca,'XTick',0:32:256)
 
-legend('EPG: Z_0','EPG-MT: Z_0^a','EPG-MT: Z_0^b','location','southeast')
+legend('EPG: Z_0','EPG-X(MT): Z_0^a','EPG-X(MT): Z_0^b','location','southeast')
 grid on
 title('Longitudinal Magnetization, Z_0 state')
 xlim([0 npulse])
@@ -161,7 +162,7 @@ hold
 plot([1 npulse],[0 0],'--r','linewidth',2)
 plot([1 npulse],[1 1]*pi/2,'--r','linewidth',2)
 set(gca,'XTick',0:32:256)
-title('Off-resonance sensitivity')
+title('Off-resonance sensitivity (with MT)')
 xlabel('RF pulse number')
 ylabel('Dephasing per TR period: \psi /rad')
 

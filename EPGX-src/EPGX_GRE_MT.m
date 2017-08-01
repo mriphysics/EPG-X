@@ -1,7 +1,49 @@
 function [F0,Fn,Zn,F] = EPGX_GRE_MT(theta,phi,B1SqrdTau,TR,T1x,T2a,f,ka,G,varargin)
 %   [F0,Fn,Zn,F] = EPGX_GRE_MT(theta,phi,B1SqrdTau,TR,T1x,T2a,f,ka,G,varargin)
 %
+%   EPG-X for Pulsed MT systems w/ gradient echo sequences
 %
+%   arguments:
+%               theta:      vector of flip angles (rad) - length = #pulses
+%               phi:        phase per pulse. This function can hence be
+%                           used to simulate RF spoiling or balanced
+%                           sequences depending on how phase is cycled
+%                           see function RF_phase_cycle()
+%               B1SqrdTau:  vector of RF pulse energies, uT^2 ms
+%               TR:         repetition time, ms
+%               T1x:        [T1a T1b], ms
+%               T2a:        T2a, ms (only compartment a has appreciable T2)
+%               f:          fraction of compartment b
+%               ka:         exchange rate from a->b (units ms^-1)
+%               G:          absorption line value at the frequency of
+%                           interest. Units us (microseconds)
+%
+%   optional arguments (use string then value as next argument)
+%
+%               kmax:       maximum EPG order to include. Can be used to
+%                           accelerate calculation. 
+%                           Setting kmax=inf ensures ALL pathways are
+%                           computed
+%              diff:        structure with fields:
+%                           G    - Gradient amplitude(s)
+%                           tau  - Gradient durations(s)
+%                           D    - Diffusion coeff m^2/s (i.e. expect 10^-9)
+%
+%               prep:       can be used to simulate prep pulse prior to
+%                           gradient echo. Assume all transverse
+%                           magnetization after prep is spoiled.
+%                           structure with fields:
+%                           flip    -   flip angle, rad
+%                           t_delay -   time delay, ms
+%                           B1SqrdTau - uT^2 ms (for RF saturation)
+%
+%   Outputs:                
+%               F0:         signal (F0 state) directly after each
+%                           excitation
+%               Fn:         full EPG diagram for all transverse states
+%               Zn:         full EPG diagram for all longitudinal states
+%               F:          full state matrix. Each column is arranged as
+%                           [F0a F0a* Z0a Z0b F1a F-1a* Z1a Z1b F2a F-2a* Z2a Z2b ...] etc
 %
 %   Shaihan Malik 2017-07-20
 

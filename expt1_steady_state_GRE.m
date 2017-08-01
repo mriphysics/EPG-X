@@ -1,6 +1,7 @@
 %% Experiment 1: Steady state gradient echo vs EPG
 
-addpath(genpath('EPGX-src'))
+addpath(genpath('lib'));
+addpath(genpath('EPGX-src'));
 
 %% SPGR (RF spoiling)
 % Use simple parameters
@@ -51,14 +52,6 @@ ss0 = ssSPGR(d2r(alpha),TR,T1);
 ssx = ssSPGR_BM(d2r(alpha),TR,T1x,f,k);
 ssmt= ssSPGR_MT(d2r(alpha),b1sqrdtau,TR,[T1free T1bound],f,k,G);
 
-figfp(3)
-hold on
-plot(abs(s0))
-plot(abs(smt))
-plot(abs(sx))
-plot(abs(ss0)*ones([1 npulse]),'--')
-plot(abs(ssx)*ones([1 npulse]),'--')
-plot(abs(ssmt)*ones([1 npulse]),'--')
 
 
 %% Compute whole spoiling curve
@@ -118,7 +111,7 @@ grid on
 xlabel('TR number')
 ylabel('Signal / M_0')
 title('SPGR approach to steady-state for \Phi_0=117')
-legend('EPG','EPG-X (MT)','EPG-X(BM)','Steady-state (Ernst)',...
+legend('EPG','EPG-X(MT)','EPG-X(BM)','Steady-state (Ernst)',...
     'Steady-state MT','Steady-state BM','location','northeast')
 set(gca,'fontsize',13)
 

@@ -1,5 +1,8 @@
 %%% Experiment 4: Multiecho CPMG
 
+addpath(genpath('lib'));
+addpath(genpath('EPGX-src'));
+
 %%% Simplified model. For interpretation, compartment A is the larger
 %%% (slow relaxing) and B is the small, fast relaxing compartment (myelin
 %%% water?)

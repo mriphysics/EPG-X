@@ -1,6 +1,35 @@
 function [F0,Fn,Zn,F] = EPGX_TSE_BM(theta,ESP,T1x,T2x,f,ka,varargin)
-%%%% Bloch McConnell TSE (6 components)
-%                       EPGX_TSE_BM(theta,ESP,T1x,T2x,f,ka,varargin)
+%%%% [F0,Fn,Zn,F] = EPGX_TSE_BM(theta,ESP,T1x,T2x,f,ka,varargin)
+%
+%   EPG-X for Bloch McConnell coupled systems w/ TSE sequences
+%
+%   arguments:
+%               theta:      vector of flip angles (rad) - length = #pulses
+%               ESP:        echo spacing, ms
+%               T1x:        [T1a T1b], ms
+%               T2x:        [T2a T2b], ms
+%               f:          fraction of compartment b
+%               ka:         forward exchange rate from a->b (units ms^-1)
+%
+%   optional arguments (use string then value as next argument)
+%
+%               kmax:       maximum EPG order to include. Can be used to
+%                           accelerate calculation. 
+%                           Setting kmax=inf ensures ALL pathways are
+%                           computed
+%              diff:        structure with fields:
+%                           G    - Gradient amplitude(s)
+%                           tau  - Gradient durations(s)
+%                           D    - Diffusion coeff m^2/s (i.e. expect 10^-9)
+%           * Diffusion is same in both compartments, this is experimental *
+%
+%   Outputs:                
+%               F0:         signal (F0 state) at each echo time
+%               Fn:         full EPG diagram for all transverse states
+%               Zn:         full EPG diagram for all longitudinal states
+%               F:          full state matrix. Each column is arranged as
+%                           [F0a F0a* Z0a F0b F0b* Z0b F1a F-1a* Z1a F1b F-1b* Z1b ...] etc
+%
 %
 %   Shaihan Malik 2017-07-21
 

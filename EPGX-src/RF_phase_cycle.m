@@ -1,5 +1,5 @@
 function [ phi ] = RF_phase_cycle( N, arg2 )
-%   RF_phase_cycle(N, args) Supplies 
+%   RF_phase_cycle(N, args) Supplies phase cycling pattern to EPG code
 %
 %   SPGR: phi = RF_phase_cycle(N,Phi0) 
 %               N    = number of RF pulses
@@ -7,6 +7,8 @@ function [ phi ] = RF_phase_cycle( N, arg2 )
 %
 %   balanced: phi = RF_phase_cycle(N,'balanced')
 %             produces [0 pi] cycling
+%
+%   Shaihan Malik July 2017
 
 if ~ischar(arg2)
     spgr = true;

@@ -1,6 +1,16 @@
 function E = E_diff(E,diff,kmax,N)
-% Function to build E operator with diffusion effects for standard EPG
-% 3 states per k-value). 
+% E = E_diff(E,diff,kmax,N)
+%
+%    Function to build E operator with diffusion effects for standard EPG
+%    3 states per k-value). 
+%   
+%       E = relaxation matrix (diag(E2 E2 E1))
+%       diff = structure with fields:
+%              G    - Gradient amplitude(s)
+%              tau  - Gradient durations(s)
+%              D    - Diffusion coeff m^2/s (i.e. expect 10^-9)
+%
+% Shaihan Malik July 2017
 
 [bDL, bDT] = EPG_diffusion_weights(diff.G,diff.tau,diff.D,0:kmax);
 

@@ -1,7 +1,44 @@
 function [F0,Fn,Zn,F] = EPG_GRE(theta,phi,TR,T1,T2,varargin)
 %   [F0,Fn,Zn,F] = EPG_GRE(theta,phi,TR,T1,T2,varargin)
 %
-%   Single pool EPG (classic version) 
+%   Single pool EPG (classic version) for gradient echo sequences
+%
+%   arguments:
+%               theta:      vector of flip angles (rad) - length = #pulses
+%               phi:        phase per pulse. This function can hence be
+%                           used to simulate RF spoiling or balanced
+%                           sequences depending on how phase is cycled
+%                           see function RF_phase_cycle()
+%               TR:         repetition time, ms
+%               T1:         T1, ms
+%               T2:         T2, ms
+%
+%   optional arguments (use string then value as next argument)
+%
+%               kmax:       maximum EPG order to include. Can be used to
+%                           accelerate calculation. 
+%                           Setting kmax=inf ensures ALL pathways are
+%                           computed
+%              diff:        structure with fields:
+%                           G    - Gradient amplitude(s)
+%                           tau  - Gradient durations(s)
+%                           D    - Diffusion coeff m^2/s (i.e. expect 10^-9)
+%
+%               prep:       can be used to simulate prep pulse prior to
+%                           gradient echo. Assume all transverse
+%                           magnetization after prep is spoiled.
+%                           structure with fields:
+%                           flip    -   flip angle, rad
+%                           t_delay -   time delay, ms
+%
+%   Outputs:                
+%               F0:         signal (F0 state) directly after each
+%                           excitation
+%               Fn:         full EPG diagram for all transverse states
+%               Zn:         full EPG diagram for all longitudinal states
+%               F:          full state matrix. Each column is arranged as
+%                           [F0 F0* Z0 F1 F-1* Z1 F2 F-2* Z2 ...] etc
+%
 %
 %   Shaihan Malik 2017-07-20
 
