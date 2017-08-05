@@ -20,24 +20,26 @@ The EPG-X source code in this repository is completely general and can be adapte
 
 Four separate example scripts are given in the top directory; these may be used for reproducing the four experiments presented in **this paper**.
 
-* **Experiment 1** ( `expt1_steady_state_GRE.m`)
+* **Test 1** ( `test1_steady_state_GRE.m`)
 
   Compares the steady-state found by EPG-X calculation with direct steady-state calculations for which solutions exist. Examples are given for SPGR and bSSFP sequences.
  - The transient phase of SPGR is considered
  - SPGR signal vs RF spoiling phase increment also included
 
 
-* **Experiment 2** ( `expt2_multislice_TSE.m`)
+* **Test 2** (`test2_transient_GRE.m`)
 
-  Compares single slice and multi-slice TSE for a system with MT effects. In the multi-slice case the excitation of other slices creates off-resonant saturation of the bound pool magnetization in the local slice, leading to signal attenuation when compared with the single slice case.
+   Simulates balanced SSFP and SPGR sequences with variable flip angles following an inversion pulse, for a system with MT effects. This type of sequence has been proposed for use in Magnetic Resonance Fingerprinting (MRF) - the experiment explores the possible influence of MT on this method.
 
-* **Experiment 3** (`expt3_transient_GRE.m`)
-
-  Simulates balanced SSFP and SPGR sequences with variable flip angles following an inversion pulse, for a system with MT effects. This type of sequence has been proposed for use in Magnetic Resonance Fingerprinting (MRF) - the experiment explores the possible influence of MT on this method.
-
-* **Experiment 4** (`expt4_multicomponent_CPMG.m`)
+* **Test 3** (`test3_multicomponent_CPMG.m`)
 
   Simulates multiecho CPMG sequence for two compartment system coupled by chemical exchange (follows Bloch-McConnell equations). This type of measurement is used for multicomponent T2 estimation - the simulation explores how exchange can influence the estimated parameters
+
+
+* **Test 4** ( `test4_multislice_TSE.m`)
+
+ Compares single slice and multi-slice TSE for a system with MT effects. In the multi-slice case the excitation of other slices creates off-resonant saturation of the bound pool magnetization in the local slice, leading to signal attenuation when compared with the single slice case.
+
 
 
 ## Detailed description of implementations
