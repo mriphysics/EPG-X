@@ -1,12 +1,12 @@
 # EPG-X
-An Extended Phase Graph (EPG) approach for modelling of MRI sequences for (biological) systems exhibiting Magnetization Transfer or Chemical Exchange.
+An Extended Phase Graph (EPG) approach for modelling of MRI sequences for systems with Magnetization Transfer or Chemical Exchange.
 
 The EPG algorithm is extended to coupled exchanging systems that are:
 
 1. governed by the Bloch-McConnell equations (BM) or
 2. described by the 'binary spin bath' model for pulsed magnetization transfer (MT).
 
-The theory is described in **this paper**. Essentially a two compartment system is modelled by describing each compartment with a separate EPG calculation. The operators governing evolution periods between RF pulses are updated to include exchange between compartments. For the MT case the second compartment consists only of longitudinal states. Although only two compartment systems are handled by this code, the method is in principle straightforward to extend.
+The theory is described in [**this paper**](http://github.com/mriphysics) . Essentially a two compartment system is modelled by describing each compartment with a separate EPG calculation. The operators governing evolution periods between RF pulses are updated to include exchange between compartments. For the MT case the second compartment consists only of longitudinal states. Although only two compartment systems are handled by this code, the method is in principle straightforward to extend.
 
 <img src="bin/diag.png" alt="diagram" width="70%">
 
@@ -113,7 +113,7 @@ Shifts have been implemented using matrices that are defined by separate functio
 
 #### 'kmax' variable
 
-All functions have an optional variable `kmax`. This sets the maximum order of EPG that is included in the calculation.  Reducing will lead to smaller matrices and hence faster operation. The maximum k-value is also varied throughout the sequence in order to exclude states that will not contribute to the signal. See the appendix to [this paper](http://dx.doi.org/10.1002/mrm.24153) and supporting information to [this one](http://dx.doi.org/10.1002/mrm.25192) for more detail.
+All functions have an optional variable `kmax`. This sets the maximum order of EPG that is included in the calculation.  Reducing will lead to smaller matrices and hence faster operation. The maximum k-value is also varied throughout the sequence in order to exclude states that will not contribute to the signal. See the appendix to [**this paper**](http://dx.doi.org/10.1002/mrm.24153) and supporting information to [**this one**](http://dx.doi.org/10.1002/mrm.25192) for more detail.
 
 #### Diffusion
 Diffusion effects are easily integrated into the EPG framework - see [this paper by Weigel et al](http://dx.doi.org/10.1016/j.jmr.2010.05.011) for detailed information. These are efficiently implemented in the code by combining the diffusion, relaxation (& exchange) and shift operators. The functions `Xi_diff_BM` and `Xi_diff_MT` are coded efficiently to do this. The code is hard to read but effectively creates band diagonal matrices directly using matlab `spdiags` function. For the 'classic' EPG code, the function `E_diff` combines diffusion and relaxation in the same way - this is simpler as the matrix is diagonal.

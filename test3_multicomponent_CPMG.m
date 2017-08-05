@@ -1,4 +1,4 @@
-%%% Experiment 4: Multiecho CPMG
+%%% Test 3: Multiecho CPMG
 
 addpath(genpath('lib'));
 addpath(genpath('EPGX-src'));
@@ -66,7 +66,7 @@ t2sol = lsqnonneg(S',abs(s(:)));
 t2s(pks)
 sum(t2sol(pks(1)+(-5:5)))/ sum(t2sol(:)) %<-- look 5 points either side
 
-figfp(6)
+figure(1);clf;
 subplot(223)
 imagesc(tx,ka*1e3,fapp,[0.1 0.2])
 hold
@@ -80,8 +80,6 @@ ylabel('k_a, s^{-1}')
 set(gca,'FontSize',12)
 
 colorbar
-
-
 
 subplot(224)
 imagesc(tx,ka*1e3,t2app(:,:,1),[16 35])
@@ -97,8 +95,6 @@ set(gca,'FontSize',12)
 
 colorbar
 
-
-        
 subplot(2,2,2)
 plot(t2s,t2sol)
 grid on
@@ -153,4 +149,6 @@ axes(gg(1))
 legend('Total echo amplitude','Compartment a','Compartment b')
 
 setpospap([360   231   751   467])
-print -r300 -dpng figure9.png
+print -r300 -dpng bin/Figure8.png
+
+

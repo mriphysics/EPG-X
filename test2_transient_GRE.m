@@ -1,4 +1,4 @@
-% Experiment 3: transient SPGR
+% Test 2: transient SPGR
 
 addpath(genpath('lib'));
 addpath(genpath('EPGX-src'));
@@ -55,7 +55,8 @@ ssfp_mt = ifftshift(size(Fn2,1)*(ifft(ifftshift(Fn2,1),[],1)),1);
 ssfp_nomt = ifftshift(size(Fn1,1)*(ifft(ifftshift(Fn1,1),[],1)),1);
 
 %%
-figfp(1)
+figure(1)
+clf
 subplot(3,1,1)
 plot(r2d(alphas),'-')
 ylabel('Flip angle (degrees)')
@@ -66,7 +67,6 @@ subplot(3,1,2)
 plot(abs(s0))
 hold on
 plot(abs(s)/(1-f),'-')
-% xlabel('RF pulse number')
 ylabel('$$\tilde{F}_0^a / M_0^a $$','Interpreter','latex')
 
 legend('EPG','EPG-X (MT)','location','northwest')
@@ -102,7 +102,7 @@ axes(gg(5))
 text(-32,-5,'(a)','fontsize',17,'fontweight','bold')
 text(-32,-60,'(b)','fontsize',17,'fontweight','bold')
 text(-32,-125,'(c)','fontsize',17,'fontweight','bold')
-print -dpng -r300 figure5.png
+print -dpng -r300 bin/figure4.png
 
 %% Balanced display
 
@@ -110,14 +110,13 @@ phiTR= linspace(-pi,pi,size(ssfp_mt,1));
 [~,idx0] = min(abs(phiTR));
 [~,idx50] = min(abs(phiTR-pi/2));
 
-figfp(1)
+figure(1);clf;
 nr=2;nc=3;
 
 subplot(nr,nc,2)
 plot(abs(ssfp_nomt(idx0,:)))
 hold on
 plot(abs(ssfp_mt(idx0,:))/(1-f),'-')
-% xlabel('RF pulse number')
 ylabel('$$\tilde{F}_0^a / M_0^a $$','Interpreter','latex')
 
 legend('EPG','EPG-X(MT)','location','northwest')
@@ -184,4 +183,4 @@ text(-700,-0.9,'(a)','fontsize',18,'fontweight','bold')
 text(-380,-1.1,'(b)','fontsize',18,'fontweight','bold')
 text(-48,-1.1,'(c)','fontsize',18,'fontweight','bold')
 
-print -dpng -r300 figure6.png
+print -dpng -r300 bin/Figure5.png

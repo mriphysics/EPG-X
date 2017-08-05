@@ -1,4 +1,4 @@
-%% Experiment 1: Steady state gradient echo vs EPG
+%% Test 1: Steady state gradient echo vs EPG
 
 addpath(genpath('lib'));
 addpath(genpath('EPGX-src'));
@@ -61,7 +61,7 @@ npulse = floor(5*T1/TR);
 
 AA = d2r(alpha)*ones(npulse,1);
 
-if 0
+if 0 % load stored result if 0
 Sig = zeros(nphi,3);
 figure(1)
 clf
@@ -91,14 +91,15 @@ for ii=1:nphi
     pause(0.0001)
     
 end
-save SigAll Sig
+    save bin/SigAll Sig
 else
-    load SigAll
+    load bin/SigAll
 end
 
 
 %% Combined figure
-figfp(1)
+figure(1)
+clf
 subplot(211)
 hold on
 p1=plot(abs(s0),'linewidth',1);
@@ -120,7 +121,6 @@ plot(phi_arr,Sig)
 grid on
 hold on
 xlim([0 180])
-% ylim([0 0.06])
 xlabel('RF spoil phase')
 ylabel('Signal / M_0')
 title('SPGR steady-state dependence on \Phi_0')
@@ -136,7 +136,7 @@ text(-25,0.03,'(b)','fontsize',20,'fontweight','bold')
 
 setpospap([360   174   457   524])
 
-print -dpng -r300 figure2.png
+print -dpng -r300 bin/Figure2.png
 
 %% bSSFP with same parameters as above
 
@@ -170,12 +170,6 @@ ssfpxSS = zeros(size(phiTR));
 ssfpmtSS= zeros(size(phiTR));
 ssfpss = zeros(size(phiTR));
 
-mt.R1b = 1/T1bound; 
-mt.fb = fb; 
-mt.k_f = ka; 
-mt.WT = WT;
-
-
 for ii=1:npulse
     ssfpss(ii) = abs(ssSSFP(d2r(alpha),TR,phiTR(ii),T1,T2));
     ssfpxSS(ii) = abs(ssSSFP_BM(d2r(alpha),TR,phiTR(ii),T1x,T2x,f,k));
@@ -186,7 +180,8 @@ mxyGloor = ssSSFP_Gloor(d2r(alpha),b1sqrdtau, TR, [T1free T1bound],T2,f,k,G);
 
 %%
 %
-figfp(6)
+figure(6)
+clf
 
 subplot(321)
 imagesc(1:npulse,phiTR*TR,abs(mxys),[0 0.2])
@@ -250,4 +245,4 @@ legend( 'Direct Steady-state','EPG-X (MT) (TR 500)','Analytic (Gloor 2008)','loc
 title('bSSFP: two compt with MT')
 
 setpospap([300 100 500 600])
-print -dpng -r300 figure3.png
+print -dpng -r300 bin/Figure3.png
