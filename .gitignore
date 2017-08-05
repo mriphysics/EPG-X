@@ -2,4 +2,3 @@
 *.asv
 *.png
 !diag.png
-*.mat
