@@ -6,9 +6,11 @@ The EPG algorithm is extended to coupled exchanging systems that are:
 1. governed by the Bloch-McConnell equations (BM) or
 2. described by the 'binary spin bath' model for pulsed magnetization transfer (MT).
 
-The theory is described in [**this paper**](http://github.com/mriphysics) . Essentially a two compartment system is modelled by describing each compartment with a separate EPG calculation. The operators governing evolution periods between RF pulses are updated to include exchange between compartments. For the MT case the second compartment consists only of longitudinal states. Although only two compartment systems are handled by this code, the method is in principle straightforward to extend.
+The theory is described in an upcoming paper (details will be posted once published) . Essentially a two compartment system is modelled by describing each compartment with a separate EPG calculation. The operators governing evolution periods between RF pulses are updated to include exchange between compartments. For the MT case the second compartment consists only of longitudinal states. Although only two compartment systems are handled by this code, the method is in principle straightforward to extend.
 
 <img src="bin/diag.png" alt="diagram" width="70%">
+
+This code is distributed under the MIT license. If you find it useful please cite [![DOI](https://zenodo.org/badge/99567997.svg)](https://zenodo.org/badge/latestdoi/99567997)
 
 Shaihan Malik, King's College London, July 2017.
 [@shaihanmalik](https://twitter.com/shaihanmalik)
@@ -18,7 +20,7 @@ Shaihan Malik, King's College London, July 2017.
 
 The EPG-X source code in this repository is completely general and can be adapted for modelling of a wide range of MR sequences. Functions have explicitly been written to simulate two commonly modeled sequence types: rapid gradient echo (including SPGR and bSSFP) and turbo spin echo (see descriptions of functions, below)
 
-Four separate example scripts are given in the top directory; these may be used for reproducing the four experiments presented in **this paper**.
+Four separate example scripts are given in the top directory; these may be used for reproducing the four experiments presented in the upcoming paper.
 
 * **Test 1** ( `test1_steady_state_GRE.m`)
 
@@ -100,12 +102,12 @@ For two compartment simulations compartment A is taken to be the larger one (for
 
 
 
-  * `EPGX_TSE_MT.m`
+* `EPGX_TSE_MT.m`
 
     EPG-X(MT) TSE simulation. Same syntax as `EPG_TSE.m` with additional `B1SqrdTau`, `f`, `ka` & `G` as defined above
 
 
-  * `EPGX_TSE_BM.m`
+* `EPGX_TSE_BM.m`
 
     EPG-X(BM) TSE simulation. As above but T1 and T2 both have two compartments and RF saturation parameters are not needed.
 
