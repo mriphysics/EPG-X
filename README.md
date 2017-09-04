@@ -140,4 +140,4 @@ The gradient echo simulation functions `EPG_GRE`, `EPGX_GRE_BM` and `EPGX_GRE_MT
     prep.B1SqrdTau=433; % Only needed for MT version - RF energy in prep pulse, units uT^2 ms
 
 #### 'zinit'
-Functions `EPG_TSE` and `EPGX_TSE_MT` have additional optional variable `zinit`. This can be used to specify the starting longitudinal magnetization Z0, which would otherwise be M0, or [M0a M0b]. This is used for experiment 2 - multi-slice TSE - which chains multiple simulations together. Only the Z0 states are assumed to be carried over between runs.
+Functions `EPG_TSE` and `EPGX_TSE_MT` have additional optional variable `zinit`. This can be used to specify the starting longitudinal magnetization Z0, which would otherwise be M0, or [M0a M0b]. This is used for test 4 - multi-slice TSE - which chains multiple simulations together. Only the Z0 states are assumed to be carried over between runs.
