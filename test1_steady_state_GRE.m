@@ -246,3 +246,109 @@ title('bSSFP: two compt with MT')
 
 setpospap([300 100 500 600])
 print -dpng -r300 bin/Figure3.png
+
+%% Additional figure - approach to ss with isochromats
+
+%%% SPGR (RF spoiling)
+% Use simple parameters
+
+%%% Sequences
+TR = 10;
+alpha = 15;
+phi0 = 117;
+
+
+%%% Relaxation parameters: single pool
+T1=1000;
+T2=100;
+
+%%% Relaxation parameters: MT
+T1free = 1000;
+T1bound = 1000;
+f = 0.2; %<-- bound fraction
+k = 10e-3; % Exchange rate from free to bound (large to small)
+
+%%% Relaxation parameters: ChX
+T1x = [1000 500];
+T2x = [100 20];    
+% exchange parameters are as above
+
+%%% RF saturation factor for MT
+G = 15.1;% us 
+b1 = 13; % uT
+gam = 267.5221 *1e-3; %< rad /ms /uT
+trf = d2r(alpha)/(gam*b1);% ms
+b1sqrdtau = b1^2*trf;
+
+
+%%% Simulation parameters as above
+npulse=200;
+phi = RF_phase_cycle(npulse,phi0);
+
+% single pool EPG
+[s0,Fn0,Zn0] = EPG_GRE(d2r(alpha)*ones(npulse,1),phi,TR,T1,T2);
+% EPG-X(BM)
+[sx,Fnx,Znx] = EPGX_GRE_BM(d2r(alpha)*ones(npulse,1),phi,TR,T1x,T2x,f,k);
+% EPG-X(MT)
+[smt,Fnmt,Znmt] = EPGX_GRE_MT(d2r(alpha)*ones(npulse,1),phi,b1sqrdtau*ones(npulse,1),...
+    TR,[T1free T1bound],T2,f,k,G);
+
+
+% Isochromat simulations
+Niso = [10:10:200 300 400 1000];
+Siso = {};
+rmse = zeros(length(Niso),3);
+
+for jj=1:length(Niso)
+    
+    % Single pool
+    siso = isochromat_GRE(d2r(alpha)*ones(npulse,1),phi,TR,T1,T2,Niso(jj));
+    Siso{jj,1} = siso;
+    rmse(jj,1) = norm(abs(siso(:))-abs(s0(:)))/norm(s0(:));
+    
+    % BM
+    siso = isochromat_GRE_BM(d2r(alpha)*ones(npulse,1),phi,TR,T1x,T2x,f,k,Niso(jj));
+    Siso{jj,2} = siso;
+    rmse(jj,2) = norm(abs(siso(:))-abs(sx(:)))/norm(sx(:));
+    
+    % MT
+    siso = isochromat_GRE_MT(d2r(alpha)*ones(npulse,1),phi,b1sqrdtau*ones(npulse,1)...
+        ,TR,[T1free T1bound],T2,f,k,G,Niso(jj));
+    Siso{jj,3} = siso;
+    rmse(jj,3) = norm(abs(siso(:))-abs(smt(:)))/norm(smt(:));
+end
+
+%% plot these
+figfp(1)
+nr=3;nc=2;
+
+sig_epg = {s0,sx,smt};
+titls = {'Single Pool','BM','MT'}
+for ii=1:3
+    subplot(nr,nc,ii*2-1)
+    
+    p1=plot(abs(sig_epg{ii}),'r');
+    hold
+    pp=[];
+    for jj=1:length(Niso)
+        pp(jj)=plot(abs(Siso{jj,ii}),'^-','color',[1 1 1]*(0.3*(length(Niso)-jj)/length(Niso)+0.6),'linewidth',0.1);
+    end
+    set(pp,'markersize',2)
+    legend('EPG-X','isochromat predictions')
+    ylim([0 0.3])
+    uistack(p1,'top');
+    
+    
+    grid on
+    xlabel('RF pulse number')
+    ylabel('Predicted signal')
+    title(titls{ii})
+    
+    subplot(nr,nc,ii*2)
+    semilogy(Niso,rmse(:,ii))
+    grid on
+    xlabel('Number of isochromats')
+    ylabel('RMS difference')
+    title(sprintf('Difference between methods, %s',titls{ii}))
+    ylim([10^-16 1])
+end
