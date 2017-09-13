@@ -295,27 +295,29 @@ phi = RF_phase_cycle(npulse,phi0);
 
 
 % Isochromat simulations
-Niso = [10:10:200 300 400 1000];
+Niso = [10:20:190 200 300 400 1000];
 Siso = {};
 rmse = zeros(length(Niso),3);
+% consider error in steady state
+erridx = 1:200;
 
 for jj=1:length(Niso)
     
     % Single pool
     siso = isochromat_GRE(d2r(alpha)*ones(npulse,1),phi,TR,T1,T2,Niso(jj));
-    Siso{jj,1} = siso;
-    rmse(jj,1) = norm(abs(siso(:))-abs(s0(:)))/norm(s0(:));
+    Siso{jj,1} = siso(:);
+    rmse(jj,1) = norm(Siso{jj,1}(erridx)-s0(erridx))/norm(s0(erridx));
     
     % BM
     siso = isochromat_GRE_BM(d2r(alpha)*ones(npulse,1),phi,TR,T1x,T2x,f,k,Niso(jj));
-    Siso{jj,2} = siso;
-    rmse(jj,2) = norm(abs(siso(:))-abs(sx(:)))/norm(sx(:));
+    Siso{jj,2} = siso(:);
+    rmse(jj,2) = norm(Siso{jj,2}(erridx)-sx(erridx))/norm(sx(erridx));
     
     % MT
     siso = isochromat_GRE_MT(d2r(alpha)*ones(npulse,1),phi,b1sqrdtau*ones(npulse,1)...
         ,TR,[T1free T1bound],T2,f,k,G,Niso(jj));
-    Siso{jj,3} = siso;
-    rmse(jj,3) = norm(abs(siso(:))-abs(smt(:)))/norm(smt(:));
+    Siso{jj,3} = siso(:);
+    rmse(jj,3) = norm(Siso{jj,3}(erridx)-smt(erridx))/norm(smt(erridx));
 end
 
 %% plot these
@@ -331,7 +333,7 @@ for ii=1:3
     hold
     pp=[];
     for jj=1:length(Niso)
-        pp(jj)=plot(abs(Siso{jj,ii}),'^-','color',[1 1 1]*(0.3*(length(Niso)-jj)/length(Niso)+0.6),'linewidth',0.1);
+        pp(jj)=plot(abs(Siso{jj,ii}),'^-','color',[1 1 1]*(0.4*(length(Niso)-jj)/length(Niso)+0.4),'linewidth',0.1);
     end
     set(pp,'markersize',2)
     legend('EPG-X','isochromat predictions')
@@ -351,4 +353,7 @@ for ii=1:3
     ylabel('RMS difference')
     title(sprintf('Difference between methods, %s',titls{ii}))
     ylim([10^-16 1])
+    set(gca,'Ytick',10.^(-16:4:0))
 end
+setpospap([100 100 800 800])
+print -dpng -r300 bin/test1_transient_isochromat.png

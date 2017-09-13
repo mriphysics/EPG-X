@@ -1,5 +1,5 @@
-function [s,mxy] = isochromat_GRE_BM(theta,phi,TR,T1x,T2x,f,ka,Niso)
-%   [F0,Fn,Zn,F] = isochromat_GRE_BM(theta,phi,TR,T1x,T2x,f,ka,Niso)
+function [s,mxy] = isochromat_GRE_BM(theta,phi,TR,T1x,T2x,f,ka,Niso,varargin)
+%   [F0,Fn,Zn,F] = isochromat_GRE_BM(theta,phi,TR,T1x,T2x,f,ka,Niso,varargin)
 %
 %   Isochromat based simualtion of Bloch McConnell coupled systems w/ gradient echo sequences
 %
@@ -22,6 +22,20 @@ function [s,mxy] = isochromat_GRE_BM(theta,phi,TR,T1x,T2x,f,ka,Niso)
 %
 %   Shaihan Malik 2017-09-04
 
+%% Extra variables
+
+for ii=1:length(varargin)
+    
+    
+    % chemical shift of pool b, for phase gain during evolution period
+    if strcmpi(varargin{ii},'delta')
+        delta = 2*pi*varargin{ii+1}*TR;
+    end
+end
+
+if ~exist('delta','var')
+    delta=0;
+end
 
 %% Set up variables
 
@@ -79,7 +93,8 @@ Xi = sparse(Xi);
 %%% Gradient dephasing matrices
 rg={};
 for jj=1:Niso
-    rg{jj} = kron(eye(2),rotmat([0 0 psi(jj)])); %<- copy matrix for both pools
+   % rg{jj} = kron(eye(2),rotmat([0 0 psi(jj)])); %<- copy matrix for both pools
+    rg{jj} = blkdiag(rotmat([0 0 psi(jj)]),rotmat([0 0 psi(jj)-delta])); %<- different rotation for pool b
 end
 Rg = blkdiag(rg{:});
 Rg = sparse(Rg);
