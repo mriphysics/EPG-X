@@ -6,7 +6,7 @@ The EPG algorithm is extended to coupled exchanging systems that are:
 1. governed by the Bloch-McConnell equations (BM) or
 2. described by the 'binary spin bath' model for pulsed magnetization transfer (MT).
 
-The theory is described in an upcoming paper (details will be posted once published) . Essentially a two compartment system is modelled by describing each compartment with a separate EPG calculation. The operators governing evolution periods between RF pulses are updated to include exchange between compartments. For the MT case the second compartment consists only of longitudinal states. Although only two compartment systems are handled by this code, the method is in principle straightforward to extend.
+The theory is described in an upcoming paper ([**pre-print here**](https://arxiv.org/abs/1709.00832)) . Essentially a two compartment system is modelled by describing each compartment with a separate EPG calculation. The operators governing evolution periods between RF pulses are updated to include exchange between compartments. For the MT case the second compartment consists only of longitudinal states. Although only two compartment systems are handled by this code, the method is in principle straightforward to extend.
 
 <img src="bin/diag.png" alt="diagram" width="70%">
 
@@ -25,8 +25,8 @@ Four separate example scripts are given in the top directory; these may be used 
 * **Test 1** ( `test1_steady_state_GRE.m`)
 
   Compares the steady-state found by EPG-X calculation with direct steady-state calculations for which solutions exist. Examples are given for SPGR and bSSFP sequences.
- - The transient phase of SPGR is considered
- - SPGR signal vs RF spoiling phase increment also included
+  - The transient phase of SPGR is considered
+  - SPGR signal vs RF spoiling phase increment also included
 
 
 * **Test 2** (`test2_transient_GRE.m`)
@@ -40,7 +40,7 @@ Four separate example scripts are given in the top directory; these may be used 
 
 * **Test 4** ( `test4_multislice_TSE.m`)
 
- Compares single slice and multi-slice TSE for a system with MT effects. In the multi-slice case the excitation of other slices creates off-resonant saturation of the bound pool magnetization in the local slice, leading to signal attenuation when compared with the single slice case.
+  Compares single slice and multi-slice TSE for a system with MT effects. In the multi-slice case the excitation of other slices creates off-resonant saturation of the bound pool magnetization in the local slice, leading to signal attenuation when compared with the single slice case.
 
 
 
