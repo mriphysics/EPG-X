@@ -149,6 +149,6 @@ axes(gg(1))
 legend('Total echo amplitude','Compartment a','Compartment b')
 
 setpospap([360   231   751   467])
-print -r300 -dpng bin/Figure8.png
+print -r300 -dpng bin/Figure7.png
 
 

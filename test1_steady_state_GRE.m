@@ -7,8 +7,8 @@ addpath(genpath('EPGX-src'));
 % Use simple parameters
 
 %%% Sequences
-TR = 10;
-alpha = 15;
+TR = 5;
+alpha = 10;
 phi0 = 117;
 
 
@@ -121,6 +121,7 @@ plot(phi_arr,Sig)
 grid on
 hold on
 xlim([0 180])
+ylim([0.02 0.08])
 xlabel('RF spoil phase')
 ylabel('Signal / M_0')
 title('SPGR steady-state dependence on \Phi_0')
@@ -131,8 +132,8 @@ plot(abs(ss0)*ones(size(s0)),'-.','Color',p1.Color * 0.6)
 plot(abs(ssmt)*ones(size(s0)),'-.','Color',p2.Color* 0.6)
 plot(abs(ssx)*ones(size(s0)),'-.','Color',p3.Color* 0.6)
 
-text(-25,0.12,'(a)','fontsize',20,'fontweight','bold')
-text(-25,0.03,'(b)','fontsize',20,'fontweight','bold')
+text(-25,0.095,'(a)','fontsize',20,'fontweight','bold')
+text(-25,0.01,'(b)','fontsize',20,'fontweight','bold')
 
 setpospap([360   174   457   524])
 
@@ -213,7 +214,7 @@ xlim([-pi pi])
 ylim([0 0.2])
 ylabel('Signal / M_0')
 xlabel('Dephasing / TR (\psi / rad)')
-legend( 'Direct Steady-state','EPG (TR 500)','location','south')
+legend( 'Direct Steady-state','EPG (TR#1000)','location','south')
 title('bSSFP single compartment')
 
 
@@ -227,7 +228,7 @@ xlim([-pi pi])
 ylim([0 0.2])
 ylabel('Signal / M_0')
 xlabel('Dephasing / TR (\psi / rad)')
-legend( 'Direct Steady-state','EPG-X (BM) (TR 500)','location','south')
+legend( 'Direct Steady-state','EPG-X (BM) (TR#1000)','location','south')
 title('bSSFP: two compt with BM')
 
 subplot(326)
@@ -241,7 +242,7 @@ xlim([-pi pi])
 ylim([0 0.2])
 ylabel('Signal / M_0')
 xlabel('Dephasing / TR (\psi / rad)')
-legend( 'Direct Steady-state','EPG-X (MT) (TR 500)','Analytic (Gloor 2008)','location','north')
+legend( 'Direct Steady-state','EPG-X (MT) (TR#1000)','Analytic (Gloor 2008)','location','north')
 title('bSSFP: two compt with MT')
 
 setpospap([300 100 500 600])
@@ -253,8 +254,8 @@ print -dpng -r300 bin/Figure3.png
 % Use simple parameters
 
 %%% Sequences
-TR = 10;
-alpha = 15;
+TR = 5;
+alpha = 10;
 phi0 = 117;
 
 
@@ -298,6 +299,7 @@ phi = RF_phase_cycle(npulse,phi0);
 Niso = [10:20:190 200 300 400 1000];
 Siso = {};
 rmse = zeros(length(Niso),3);
+maxerr=rmse;
 % consider error in steady state
 erridx = 1:200;
 
@@ -307,37 +309,41 @@ for jj=1:length(Niso)
     siso = isochromat_GRE(d2r(alpha)*ones(npulse,1),phi,TR,T1,T2,Niso(jj));
     Siso{jj,1} = siso(:);
     rmse(jj,1) = norm(Siso{jj,1}(erridx)-s0(erridx))/norm(s0(erridx));
+    maxerr(jj,1)=max(abs((Siso{jj,1}(erridx)-s0(erridx))./s0(erridx)));
     
     % BM
     siso = isochromat_GRE_BM(d2r(alpha)*ones(npulse,1),phi,TR,T1x,T2x,f,k,Niso(jj));
     Siso{jj,2} = siso(:);
     rmse(jj,2) = norm(Siso{jj,2}(erridx)-sx(erridx))/norm(sx(erridx));
+    maxerr(jj,2)=max(abs((Siso{jj,2}(erridx)-sx(erridx))./sx(erridx)));
     
     % MT
     siso = isochromat_GRE_MT(d2r(alpha)*ones(npulse,1),phi,b1sqrdtau*ones(npulse,1)...
         ,TR,[T1free T1bound],T2,f,k,G,Niso(jj));
     Siso{jj,3} = siso(:);
     rmse(jj,3) = norm(Siso{jj,3}(erridx)-smt(erridx))/norm(smt(erridx));
+    maxerr(jj,3)=max(abs((Siso{jj,3}(erridx)-smt(erridx))./smt(erridx)));
 end
 
 %% plot these
 figfp(1)
 nr=3;nc=2;
-
+cm=colormap(lines);
 sig_epg = {s0,sx,smt};
-titls = {'Single Pool','BM','MT'}
+titls = {'Single Compartment','BM','MT'};
+name2 = {'EPG','EPG-X(BM)','EPG-X(MT)'};
 for ii=1:3
     subplot(nr,nc,ii*2-1)
     
-    p1=plot(abs(sig_epg{ii}),'r');
+    p1=plot(abs(sig_epg{ii}),'k','linewidth',2);
     hold
     pp=[];
     for jj=1:length(Niso)
-        pp(jj)=plot(abs(Siso{jj,ii}),'^-','color',[1 1 1]*(0.4*(length(Niso)-jj)/length(Niso)+0.4),'linewidth',0.1);
+        %pp(jj)=plot(abs(Siso{jj,ii}),'^-','color',[1 1 1]*(0.4*(length(Niso)-jj)/length(Niso)+0.2),'linewidth',0.1);
+        pp(jj)=plot(abs(Siso{jj,ii}),'^-','color',cm(jj,:),'linewidth',0.2);
     end
     set(pp,'markersize',2)
-    legend('EPG-X','isochromat predictions')
-    ylim([0 0.3])
+    legend(name2{ii},'isochromat predictions')
     uistack(p1,'top');
     
     
@@ -348,12 +354,22 @@ for ii=1:3
     
     subplot(nr,nc,ii*2)
     semilogy(Niso,rmse(:,ii))
+    %semilogy(Niso,maxerr(:,ii))
     grid on
-    xlabel('Number of isochromats')
+    xlabel('Number of isochromats (N_{iso})')
     ylabel('RMS difference')
-    title(sprintf('Difference between methods, %s',titls{ii}))
+    title(sprintf('RMS Difference: %s',titls{ii}))
     ylim([10^-16 1])
     set(gca,'Ytick',10.^(-16:4:0))
 end
-setpospap([100 100 800 800])
-print -dpng -r300 bin/test1_transient_isochromat.png
+setpospap([100 100 600 650])
+gg=get(gcf,'Children');
+axes(gg(9))
+text(-35,-0.04,'(a)','fontsize',18,'fontweight','bold')
+text(-35,-0.38,'(c)','fontsize',18,'fontweight','bold')
+text(-35,-0.72,'(e)','fontsize',18,'fontweight','bold')
+text(215,-0.04,'(b)','fontsize',18,'fontweight','bold')
+text(215,-0.38,'(d)','fontsize',18,'fontweight','bold')
+text(215,-0.72,'(f)','fontsize',18,'fontweight','bold')
+%
+print -dpng -r300 bin/SF1.png

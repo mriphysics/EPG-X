@@ -8,7 +8,7 @@ f = 0.1166;  %% F=0.132 = f/(1-f) => f=0.1166
 kf = 4.3e-3;
 kb = kf * (1-f)/f;
 R1f = 1/779; % ms^-1
-R1b = 1/1000; %<- Gloor fix as T1f, usual literature is 1s
+R1b = 1/779; %<- Gloor fix as T1f
 R2f = 1/45;
 R1obs = 0.5*(R1f + kf + R1b + kb)-0.5*sqrt((R1f + kf + R1b + kb).^2 ...
     -4*(R1f*R1b + R1f*kb + R1b*kf));
@@ -183,4 +183,4 @@ text(-700,-0.9,'(a)','fontsize',18,'fontweight','bold')
 text(-380,-1.1,'(b)','fontsize',18,'fontweight','bold')
 text(-48,-1.1,'(c)','fontsize',18,'fontweight','bold')
 
-print -dpng -r300 bin/Figure5.png
+print -dpng -r300 bin/SF2.png
