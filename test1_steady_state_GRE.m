@@ -290,6 +290,8 @@ phi = RF_phase_cycle(npulse,phi0);
 [s0,Fn0,Zn0] = EPG_GRE(d2r(alpha)*ones(npulse,1),phi,TR,T1,T2);
 % EPG-X(BM)
 [sx,Fnx,Znx] = EPGX_GRE_BM(d2r(alpha)*ones(npulse,1),phi,TR,T1x,T2x,f,k);
+% [sx,Fnx,Znx] = EPGX_GRE_BM(d2r(alpha)*ones(npulse,1),phi,TR,T1x,T2x,f,k,'delta',100);
+
 % EPG-X(MT)
 [smt,Fnmt,Znmt] = EPGX_GRE_MT(d2r(alpha)*ones(npulse,1),phi,b1sqrdtau*ones(npulse,1),...
     TR,[T1free T1bound],T2,f,k,G);
@@ -313,6 +315,7 @@ for jj=1:length(Niso)
     
     % BM
     siso = isochromat_GRE_BM(d2r(alpha)*ones(npulse,1),phi,TR,T1x,T2x,f,k,Niso(jj));
+    %siso = isochromat_GRE_BM(d2r(alpha)*ones(npulse,1),phi,TR,T1x,T2x,f,k,Niso(jj),'delta',100);
     Siso{jj,2} = siso(:);
     rmse(jj,2) = norm(Siso{jj,2}(erridx)-sx(erridx))/norm(sx(erridx));
     maxerr(jj,2)=max(abs((Siso{jj,2}(erridx)-sx(erridx))./sx(erridx)));

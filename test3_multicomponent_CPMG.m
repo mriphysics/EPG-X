@@ -43,7 +43,6 @@ t2app = zeros(nk,ntx,2);
 fapp = zeros(nk,ntx);
 for ii=1:nk
     for jj=1:ntx
-        %[s, Fn,Zn,F] = FSE_EPGX_sim(a0*tx(jj),'ESP',ESP,'T1',T1,'T2',T2,'mt',mtt);
         s = EPGX_TSE_BM(a0*tx(jj),ESP,T1,T2,f,ka(ii));
         t2sol = lsqnonneg(S',abs(s(:)));
         [~,pks] = findpeaks(t2sol);

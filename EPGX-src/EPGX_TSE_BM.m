@@ -155,7 +155,7 @@ end
     
 
 %%% Composite exchange-relax-shift
-XS=Xi*S;
+XS=S*Xi;
 XS=sparse(XS);
 
 %%% Pre-allocate RF matrix

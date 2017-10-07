@@ -141,7 +141,7 @@ kb = ka * M0a/M0b;
 R1a = 1/T1x(1);
 R1b = 1/T1x(2);
 R2a = 1/T2x(1);
-R2b = 1/T2x(2)+1i*delta;
+R2b = 1/T2x(2);
 
 %%% handle no exchange case
 if (f==0)||(ka==0)
@@ -158,8 +158,8 @@ S = sparse(S);
 %% Set up matrices for Relaxation and Exchange
 
 %%% Relaxation-exchange matrix for transverse components
-Lambda_T = diag([-R2a-ka -R2a-ka -R2b-kb -R2b-kb]);
-Lambda_T = diag([-R2a-ka -R2a-ka -R2b-kb -conj(R2b)-kb]);
+% Lambda_T = diag([-R2a-ka -R2a-ka -R2b-kb -R2b-kb]);
+Lambda_T = diag([-R2a-ka -R2a-ka -R2b-kb-1i*delta -R2b-kb+1i*delta]);
 
 Lambda_T(1,3) = kb;
 Lambda_T(2,4) = kb;
@@ -195,8 +195,10 @@ end
     
 
 %%% Composite exchange-relax-shift
-XS=Xi*S;
-XS=sparse(XS);
+XS=S*Xi;XS=sparse(XS);
+Xi=sparse(Xi);
+S=sparse(S);
+
 
 %%% Pre-allocate RF matrix
 T = zeros(N,N);
@@ -240,8 +242,9 @@ end
 
 for jj=1:np 
     %%% RF transition matrix
-    A = RF_rot_v2(theta(jj),phi(jj));
-   
+    %A = RF_rot_v2(theta(jj),phi(jj));
+    A = RF_rot(theta(jj),phi(jj));
+    
     %%% Variable order of EPG, speed up calculation
     kmax_current = kmax_per_pulse(jj);
     kidx = 1:6*(kmax_current+1); %+1 because states start at zero
@@ -256,11 +259,10 @@ for jj=1:np
     if jj==np
         break
     end
-    
-    %%% Now deal with evolution
+   
+
+    %%% Now deal with evolution. 
     FF(kidx) = XS(kidx,kidx)*F(kidx,jj)+b(kidx);
-    
-    % Deal with complex conjugate after shift
     FF([1 4])=conj(FF([1 4])); %<---- F0 comes from F-1 so conjugate (do F0a and F0b)
 end
 

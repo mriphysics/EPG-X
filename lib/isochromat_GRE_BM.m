@@ -21,6 +21,7 @@ function [s,mxy] = isochromat_GRE_BM(theta,phi,TR,T1x,T2x,f,ka,Niso,varargin)
 %
 %
 %   Shaihan Malik 2017-09-04
+%                 2017-10-06: rewrite in M+,M- basis  
 
 %% Extra variables
 
@@ -29,7 +30,7 @@ for ii=1:length(varargin)
     
     % chemical shift of pool b, for phase gain during evolution period
     if strcmpi(varargin{ii},'delta')
-        delta = 2*pi*varargin{ii+1}*TR;
+        delta = 2*pi*varargin{ii+1};
     end
 end
 
@@ -86,18 +87,29 @@ Xi = expm(TR*A); %<-- operator for time period TR
 Zoff = (Xi - eye(6))*(A\C);
 Zoff = repmat(Zoff(:),[Niso 1]); % replicate for all isochromats
 
+% 6/10/17: make Xi with dephasing as well
+Xi={};
+w = psi/(TR);
+for jj=1:Niso
+    W = diag(1i*[-w(jj) w(jj) 0 -(w(jj)+delta) w(jj)+delta 0]);
+    AA = A + W;
+    Xi{jj} = expm(AA*TR);
+end
+Xi = blkdiag(Xi{:});
+Xi = sparse(Xi);  
+
 % Multiply this up for all isochromats
-Xi = kron(eye(Niso),Xi);
-Xi = sparse(Xi);    
+% Xi = kron(eye(Niso),Xi);
+% Xi = sparse(Xi);    
 
 %%% Gradient dephasing matrices
-rg={};
-for jj=1:Niso
-   % rg{jj} = kron(eye(2),rotmat([0 0 psi(jj)])); %<- copy matrix for both pools
-    rg{jj} = blkdiag(rotmat([0 0 psi(jj)]),rotmat([0 0 psi(jj)-delta])); %<- different rotation for pool b
-end
-Rg = blkdiag(rg{:});
-Rg = sparse(Rg);
+% rg={};
+% for jj=1:Niso
+%    % rg{jj} = kron(eye(2),rotmat([0 0 psi(jj)])); %<- copy matrix for both pools
+%     rg{jj} = blkdiag(rotmat([0 0 psi(jj)]),rotmat([0 0 psi(jj)-delta])); %<- different rotation for pool b
+% end
+% Rg = blkdiag(rg{:});
+% Rg = sparse(Rg);
 
 
 
@@ -120,25 +132,27 @@ M(:,1) = M0;
 for jj=1:Npulse
     
     % Get matrix ready for flip
-    build_T_matrix_sub_implicit(rotmat(theta(jj)*[cos(phi(jj)) sin(phi(jj)) 0]));
+    build_T_matrix_sub_implicit(RF_rot(theta(jj),phi(jj)));
     
     % Flip
     M(:,jj) = T*M(:,jj);
     
     % Dephase and T1 recovery
     if jj<Npulse
-        % First apply gradient dephasing
-        M(:,jj+1) = Rg*M(:,jj);
-        % now evolution due to relaxation and exchange
-        M(:,jj+1) = Xi*M(:,jj+1)+Zoff;
+      
+        % Evolution due to gradients, relaxation and exchange all together
+        M(:,jj+1) = Xi*M(:,jj)+Zoff;
     end
      
 end
 
 
 % Now generate signal and demodulate it
-mxya = M(1:6:end,:) + 1i*M(2:6:end,:);
-mxyb = M(4:6:end,:) + 1i*M(5:6:end,:);
+% mxya = M(1:6:end,:) + 1i*M(2:6:end,:);
+% mxyb = M(4:6:end,:) + 1i*M(5:6:end,:);
+mxya = M(1:6:end,:);
+mxyb = M(4:6:end,:);
+
 % Get signal from mean
 sa = 1i*mean(mxya,1);
 sb = 1i*mean(mxyb,1);
@@ -184,4 +198,19 @@ mxy=cat(3,mxya,mxyb);
         
     end
 
+    %%% NORMAL EPG transition matrix but replicated twice 
+    % As per Weigel et al JMR 2010 276-285 
+    function Tap = RF_rot(a,p)
+        Tap = zeros([3 3]);
+        Tap(1) = cos(a/2).^2;
+        Tap(2) = exp(-2*1i*p)*(sin(a/2)).^2;
+        Tap(3) = -0.5*1i*exp(-1i*p)*sin(a);
+        Tap(4) = conj(Tap(2));
+        Tap(5) = Tap(1);
+        Tap(6) = 0.5*1i*exp(1i*p)*sin(a);
+        Tap(7) = -1i*exp(1i*p)*sin(a);
+        Tap(8) = 1i*exp(-1i*p)*sin(a);
+        Tap(9) = cos(a);
+        %Tap = kron(eye(2),Tap);
+    end
 end

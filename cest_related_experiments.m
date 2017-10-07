@@ -14,7 +14,7 @@ phi0 = 117;
 T1x = [1000 500];
 T2x = [100 20];    
 f = 0.2; %<-- small pool fraction
-k = 50e-3; % Exchange rate from free to bound (large to small)
+k = 5e-3; % Exchange rate from free to bound (large to small)
 
 
 % EPG simulations
@@ -22,7 +22,7 @@ npulse=200;
 phi = RF_phase_cycle(npulse,phi0);
 
 % range of TRs
-tr = 1:100;
+tr = linspace(1,100,32);
 ntr=length(tr);
 S = zeros([npulse ntr 2]);
 
@@ -53,7 +53,7 @@ f = 0.05/1.05;
 TR = 2.025;
 
 d_ppm = 1; %delta in ppm
-d_kHz = d_ppm*1e-6 * 3 * 42e3; %<- 3T, 42kHz/T
+d_kHz = d_ppm*1e-6 * 3 * 42.6e3; %<- 3T, 42kHz/T
 
 k_Hz_ba = 1. * d_kHz*1e3;% solute to water exchange rate specified in paper
 
@@ -73,15 +73,15 @@ d.tau = [0.5 1 0.5]; %ms %balanced readout
 d.D = 2.3e-9;
 
 [sx,Fnx,Znx] = EPGX_GRE_BM(alpha,phi,TR,T1x,T2x,...
-    f,k_Hz_ab*1e-3,'offres',1,'delta',d_kHz,'kmax',250,'diff',d);
+    f,k_Hz_ab*1e-3,'offres',0,'delta',d_kHz,'kmax',80);%,'diff',d);
 
 Niso=101;
 
 [si,mxy] = isochromat_GRE_BM(alpha,phi,TR,T1x,T2x,...
-    f,k_Hz_ab*1e-3,Niso,'delta',-d_kHz);
+    f,k_Hz_ab*1e-3,Niso,'delta',d_kHz);
 
 %M = fftshift(ifft(ifftshift(Fnx,1),[],1),1);
-M = size(Fnx,1)*ifft(ifftshift(Fnx,1),[],1);
+M = fft(ifftshift(Fnx,1),[],1);
 M = cat(1,M,M,M);
 pp = linspace(-3,3,size(M,1));
 pp2 = 2*pi*(0:fix(Niso)-1)/fix(Niso)-pi;
@@ -138,14 +138,14 @@ for ii=1:n1
 %             f,k_Hz_ab*1e-3,'offres',sinc(tau_rf*d_kHz*1e3),'delta',-d_kHz,'kmax',50,'diff',d);%<-- flip is same for both pools (v short pulses)
         tic
         [sx,Fnx,Znx] = EPGX_GRE_BM(alpha,phi,TR,T1x,T2x,...
-            f,k_Hz_ab*1e-3,'delta',-d_kHz,'kmax',50,'diff',d);%<-- flip is same for both pools (v short pulses)
+            f,k_Hz_ab*1e-3,'delta',d_kHz,'kmax',50,'diff',d);%<-- flip is same for both pools (v short pulses)
         tt1=toc;
         tic
         [~,mxy] = isochromat_GRE_BM(alpha,phi,TR,T1x,T2x,...
-            f,k_Hz_ab*1e-3,101,'delta',-d_kHz);
+            f,k_Hz_ab*1e-3,101,'delta',d_kHz);
         tt2=toc;
         fprintf(1,'%d %d EPGX = %1.3f s iso = %1.3f s\n',ii,jj,tt1,tt2);
-        M = size(Fnx,1)*ifft(ifftshift(Fnx,1),[],1);
+        M = fft(ifftshift(Fnx,1),[],1);
         M = cat(1,M,M,M);
         
         S{ii,jj} = squeeze(M(:,end,:));
@@ -165,10 +165,11 @@ pp = pp / (2*TR*1e-3);
 for ii=1:3
     subplot(2,3,ii)
     hold on
-    plot(pp,abs(S{1,1}(:,1)))
+    %plot(pp,abs(S{1,1}(:,1)))
+    plot(pp,abs(sum(S{1,1},2)))
     for jj=1:n2
-        plot(pp,abs(S{ii+1,jj}(:,1)))
-        %plot(pp,abs(sum(S{ii+1,jj},2)))
+        %plot(pp,abs(S{ii+1,jj}(:,1)))
+        plot(pp,abs(sum(S{ii+1,jj},2)))
     end
     grid on
    xlim([-500 500])
@@ -179,13 +180,59 @@ end
 for ii=1:3
     subplot(2,3,ii+3)
     hold on
-    plot(pp,abs(Siso{1,1}(:,1)))
+    %plot(pp,abs(Siso{1,1}(:,1)))
+    plot(pp,abs(sum(Siso{1,1},2)))
     for jj=1:n2
-        plot(pp,abs(Siso{ii+1,jj}(:,1)))
-        %plot(pp,abs(sum(Siso{ii+1,jj},2)))
+        %plot(pp,abs(Siso{ii+1,jj}(:,1)))
+        plot(pp,abs(sum(Siso{ii+1,jj},2)))
     end
     grid on
     xlim([-500 500])
     title(sprintf('Isochromat %d ppm',d_ppm(ii+1)))
 end
+    
+%% Figure with asymmetry
+figfp(22)
+
+pp = linspace(-3,3,size(M,1));
+pp = pp / (2*TR*1e-3);
+
+for ii=1:3
+    subplot(2,3,ii)
+    hold on
+    plot(pp,abs(sum(S{1,1},2)))
+    for jj=1:n2
+        plot(pp,abs(sum(S{ii+1,jj},2)))
+    end
+    grid on
+    xlim([-500 500])
+    title(sprintf('EPG-X %d ppm',d_ppm(ii+1)))
+end
+    
+xl = {[-250 0],[-500 -250],[-250 0]};
+pidx={};
+for ii=1:3
+    pidx{ii} = (pp<xl{ii}(1))|(pp>xl{ii}(2));
+end
+%%% Asymmetry
+for ii=1:3
+    subplot(2,3,ii+3)
+    hold on
+    mxy=abs(sum(S{1,1},2));
+    mxyneg=circshift(flipud(mxy),[1 0]);
+    mxy_asymm=(mxyneg-mxy)./mxyneg;
+    mxy_asymm(pidx{ii})=0;
+    plot(pp,mxy_asymm)
+    for jj=1:n2
+        mxy=abs(sum(S{ii+1,jj},2));
+        mxyneg=circshift(flipud(mxy),[1 0]);
+        mxy_asymm=(mxyneg-mxy)./mxyneg;
+        mxy_asymm(pidx{ii})=0;
+        plot(pp,mxy_asymm)
+    end
+    grid on
+    xlim([-500 500])
+    title(sprintf('EPG-X %d ppm',d_ppm(ii+1)))
+end
+
     
