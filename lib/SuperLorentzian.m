@@ -5,8 +5,8 @@
 function [ff,G] = SuperLorentzian(T2b)
 
 %%% define frequency range
-n=256;
-ff = linspace(-10e3,10e3,n);
+n=512;
+ff = linspace(-30e3,30e3,n);
 
 %%% compute G for this range
 G = zeros([n 1]);

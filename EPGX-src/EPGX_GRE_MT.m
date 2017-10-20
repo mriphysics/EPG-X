@@ -152,7 +152,7 @@ end
     
 
 %%% Composite exchange-relax-shift
-XS=Xi*S;
+XS=S*Xi;
 XS=sparse(XS);
 
 %%% Compute saturation terms for RF pulse
@@ -164,7 +164,7 @@ WT = pi*gam^2*B1SqrdTau*G;
 %%% Pre-allocate RF matrix
 T = zeros(N,N);
 T = sparse(T);
-% store the indices of the top 6x6 corner, this helps build_T
+% store the indices of the top 4x4 corner, this helps build_T
 i1 = [];
 for ii=1:4
     i1 = cat(2,i1,sub2ind(size(T),1:4,ii*ones(1,4)));

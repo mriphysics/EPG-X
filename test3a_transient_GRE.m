@@ -1,4 +1,4 @@
-% Test 2: transient SPGR
+% Test 3: transient SPGR, WM simulation
 
 addpath(genpath('lib'));
 addpath(genpath('EPGX-src'));
@@ -8,7 +8,7 @@ f = 0.1166;  %% F=0.132 = f/(1-f) => f=0.1166
 kf = 4.3e-3;
 kb = kf * (1-f)/f;
 R1f = 1/779; % ms^-1
-R1b = 1/1000; %<- Gloor fix as T1f, usual literature is 1s
+R1b = 1/779; %<- Gloor fix as T1f
 R2f = 1/45;
 R1obs = 0.5*(R1f + kf + R1b + kb)-0.5*sqrt((R1f + kf + R1b + kb).^2 ...
     -4*(R1f*R1b + R1f*kb + R1b*kf));
@@ -95,14 +95,13 @@ set(gg([2 4 5]),'FontSize',13)
 gg(2).Position = [0.1300    0.0665    0.7750    0.2494];
 gg(4).Position = [0.1300    0.4118    0.7750    0.2134];
 gg(5).Position = [0.1300    0.7114    0.7750    0.2134];
-% print -dpng -r300 IRTFE_median_brain.png
 
 %%% text
 axes(gg(5))
 text(-32,-5,'(a)','fontsize',17,'fontweight','bold')
 text(-32,-60,'(b)','fontsize',17,'fontweight','bold')
 text(-32,-125,'(c)','fontsize',17,'fontweight','bold')
-print -dpng -r300 bin/figure4.png
+print -dpng -r300 bin/Test3a_fig1.png
 
 %% Balanced display
 
@@ -183,4 +182,4 @@ text(-700,-0.9,'(a)','fontsize',18,'fontweight','bold')
 text(-380,-1.1,'(b)','fontsize',18,'fontweight','bold')
 text(-48,-1.1,'(c)','fontsize',18,'fontweight','bold')
 
-print -dpng -r300 bin/Figure5.png
+print -dpng -r300 bin/Test3a_fig2.png

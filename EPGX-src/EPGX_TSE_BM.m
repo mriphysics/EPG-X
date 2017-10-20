@@ -9,7 +9,7 @@ function [F0,Fn,Zn,F] = EPGX_TSE_BM(theta,ESP,T1x,T2x,f,ka,varargin)
 %               T1x:        [T1a T1b], ms
 %               T2x:        [T2a T2b], ms
 %               f:          fraction of compartment b
-%               ka:         forward exchange rate from a->b (units ms^-1)
+%               ka:         forward exchange rate from a->b (units ms^-1, i.e. kHz)
 %
 %   optional arguments (use string then value as next argument)
 %
@@ -23,6 +23,8 @@ function [F0,Fn,Zn,F] = EPGX_TSE_BM(theta,ESP,T1x,T2x,f,ka,varargin)
 %                           D    - Diffusion coeff m^2/s (i.e. expect 10^-9)
 %           * Diffusion is same in both compartments, this is experimental *
 %
+%              delta:       Frequency offset for compartment b, kHz
+%
 %   Outputs:                
 %               F0:         signal (F0 state) at each echo time
 %               Fn:         full EPG diagram for all transverse states
@@ -31,7 +33,7 @@ function [F0,Fn,Zn,F] = EPGX_TSE_BM(theta,ESP,T1x,T2x,f,ka,varargin)
 %                           [F0a F0a* Z0a F0b F0b* Z0b F1a F-1a* Z1a F1b F-1b* Z1b ...] etc
 %
 %
-%   Shaihan Malik 2017-07-21
+%   Shaihan Malik 2017-10-13
 
 
 %% Extra variables
@@ -49,7 +51,16 @@ for ii=1:length(varargin)
         diff = varargin{ii+1};
     end
     
+    % chemical shift of pool b, for phase gain during evolution period
+    if strcmpi(varargin{ii},'delta')
+        delta = 2*pi*varargin{ii+1};
+    end
 end
+
+if ~exist('delta','var')
+    delta=0;
+end
+
 
 %% Calculation is faster when considering only appropriate EPG orders 
 
@@ -120,7 +131,7 @@ S = sparse(S);
 %% Set up matrices for Relaxation and Exchange
 
 %%% Relaxation-exchange matrix for transverse components
-Lambda_T = diag([-R2a-ka -R2a-ka -R2b-kb -R2b-kb]);
+Lambda_T = diag([-R2a-ka -R2a-ka -R2b-kb-1i*delta -R2b-kb+1i*delta]);
 Lambda_T(1,3) = kb;
 Lambda_T(2,4) = kb;
 Lambda_T(3,1) = ka;
@@ -155,7 +166,7 @@ end
     
 
 %%% Composite exchange-relax-shift
-XS=Xi*S;
+XS=S*Xi;
 XS=sparse(XS);
 
 %%% Pre-allocate RF matrix

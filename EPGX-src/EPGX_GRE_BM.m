@@ -34,6 +34,9 @@ function [F0,Fn,Zn,F] = EPGX_GRE_BM(theta,phi,TR,T1x,T2x,f,ka,varargin)
 %                           flip    -   flip angle, rad
 %                           t_delay -   time delay, ms
 %
+%
+%               delta:      frequency offset of pool b, kHz 
+%
 %   Outputs:                
 %               F0:         signal (F0 state) directly after each
 %                           excitation
@@ -65,6 +68,25 @@ for ii=1:length(varargin)
     if strcmpi(varargin{ii},'prep')
         prep = varargin{ii+1};
     end
+    
+    % chemical shift of pool b, for phase gain during evolution period
+    if strcmpi(varargin{ii},'delta')
+        delta = 2*pi*varargin{ii+1};
+    end
+    
+    % EXPERIMENTAL: allow excitation of pool-b to have different rotation
+    % than pool-a
+    if strcmpi(varargin{ii},'offres')
+        offres = varargin{ii+1};
+    end
+    
+end
+
+if ~exist('offres','var')
+    offres=1;
+end
+if ~exist('delta','var')
+    delta=0;
 end
 
 %%% The maximum order varies through the sequence. This can be used to speed up the calculation    
@@ -84,13 +106,23 @@ end
 
 %%% Variable pathways
 if allpathways
+    % simplest case, where we just compute everything
     kmax_per_pulse = 0:kmax;
 else
+    % first do case where user hasn't dropped the number
     kmax_per_pulse = [1:ceil(np/2) (floor(np/2)):-1:1];
     kmax_per_pulse(kmax_per_pulse>kmax)=kmax;
      
     if max(kmax_per_pulse)<kmax
-        kmax = max(kmax_per_pulse);
+       kmax = max(kmax_per_pulse);
+    end
+    
+    % 2017-09-11
+    % want to avoid trimming the profiles at the end, this is a problem
+    % for bSSFP calculations, so just disable for now
+    if kmax<(np-1)
+        % this means user has trimmed
+        kmax_per_pulse(kmax:end)=kmax;
     end
 end
 
@@ -107,8 +139,8 @@ R1b = 1/T1x(2);
 R2a = 1/T2x(1);
 R2b = 1/T2x(2);
 
-%%% handle no exchange case
-if (f==0)||(ka==0)
+%%% handle single pool case
+if (f==0)%%||(ka==0)
     ka = 0;
     kb = 0;
     M0b = 0;
@@ -122,7 +154,8 @@ S = sparse(S);
 %% Set up matrices for Relaxation and Exchange
 
 %%% Relaxation-exchange matrix for transverse components
-Lambda_T = diag([-R2a-ka -R2a-ka -R2b-kb -R2b-kb]);
+Lambda_T = diag([-R2a-ka -R2a-ka -R2b-kb-1i*delta -R2b-kb+1i*delta]);
+
 Lambda_T(1,3) = kb;
 Lambda_T(2,4) = kb;
 Lambda_T(3,1) = ka;
@@ -157,8 +190,8 @@ end
     
 
 %%% Composite exchange-relax-shift
-XS=Xi*S;
-XS=sparse(XS);
+XS=S*Xi;XS=sparse(XS);
+
 
 %%% Pre-allocate RF matrix
 T = zeros(N,N);
@@ -203,7 +236,7 @@ end
 for jj=1:np 
     %%% RF transition matrix
     A = RF_rot(theta(jj),phi(jj));
-   
+    
     %%% Variable order of EPG, speed up calculation
     kmax_current = kmax_per_pulse(jj);
     kidx = 1:6*(kmax_current+1); %+1 because states start at zero
@@ -218,11 +251,10 @@ for jj=1:np
     if jj==np
         break
     end
-    
-    %%% Now deal with evolution
+   
+
+    %%% Now deal with evolution. 
     FF(kidx) = XS(kidx,kidx)*F(kidx,jj)+b(kidx);
-    
-    % Deal with complex conjugate after shift
     FF([1 4])=conj(FF([1 4])); %<---- F0 comes from F-1 so conjugate (do F0a and F0b)
 end
 
@@ -271,6 +303,34 @@ Zn = cat(3,ZnA,ZnB);
         Tap(8) = 1i*exp(-1i*p)*sin(a);
         Tap(9) = cos(a);
         Tap = kron(eye(2),Tap);
+    end
+
+    % New version, rotates pool b differently
+    function Tap = RF_rot_v2(a,p)
+        Tap = zeros([6 6]);
+        
+        % pool a
+        Tap(1) = cos(a/2).^2;
+        Tap(2) = exp(-2*1i*p)*(sin(a/2)).^2;
+        Tap(3) = -0.5*1i*exp(-1i*p)*sin(a);
+        Tap(7) = conj(Tap(2));
+        Tap(8) = Tap(1);
+        Tap(9) = 0.5*1i*exp(1i*p)*sin(a);
+        Tap(13) = -1i*exp(1i*p)*sin(a);
+        Tap(14) = 1i*exp(-1i*p)*sin(a);
+        Tap(15) = cos(a);
+        
+        % pool b
+        a = a*offres;
+        Tap(22) = cos(a/2).^2;
+        Tap(23) = exp(-2*1i*p)*(sin(a/2)).^2;
+        Tap(24) = -0.5*1i*exp(-1i*p)*sin(a);
+        Tap(28) = conj(Tap(23));
+        Tap(29) = Tap(22);
+        Tap(30) = 0.5*1i*exp(1i*p)*sin(a);
+        Tap(34) = -1i*exp(1i*p)*sin(a);
+        Tap(35) = 1i*exp(-1i*p)*sin(a);
+        Tap(36) = cos(a);
     end
 
     function build_T(AA)
