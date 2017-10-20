@@ -1,5 +1,5 @@
 # EPG-X
-An Extended Phase Graph (EPG) approach for modelling of MRI sequences for systems with Magnetization Transfer or Chemical Exchange.
+An Extended Phase Graph (EPG) approach for modelling of MRI sequences for systems with Magnetization Transfer or Exchange
 
 The EPG algorithm is extended to coupled exchanging systems that are:
 
@@ -12,7 +12,7 @@ The theory is described in an upcoming paper ([**pre-print here**](https://arxiv
 
 This code is distributed under the MIT license. If you find it useful please cite [![DOI](https://zenodo.org/badge/99567997.svg)](https://zenodo.org/badge/latestdoi/99567997)
 
-Shaihan Malik, King's College London, July 2017.
+Shaihan Malik, King's College London, July 2017. (updated October 2017)
 [@shaihanmalik](https://twitter.com/shaihanmalik)
 
 
@@ -20,29 +20,36 @@ Shaihan Malik, King's College London, July 2017.
 
 The EPG-X source code in this repository is completely general and can be adapted for modelling of a wide range of MR sequences. Functions have explicitly been written to simulate two commonly modeled sequence types: rapid gradient echo (including SPGR and bSSFP) and turbo spin echo (see descriptions of functions, below)
 
-Four separate example scripts are given in the top directory; these may be used for reproducing the four experiments presented in the upcoming paper.
+Four separate example scripts are given in the top directory; these may be used for reproducing the four experiments presented in the paper.
 
 * **Test 1** ( `test1_steady_state_GRE.m`)
 
-  Compares the steady-state found by EPG-X calculation with direct steady-state calculations for which solutions exist. Examples are given for SPGR and bSSFP sequences.
-  - The transient phase of SPGR is considered
+  Compares the steady-state found by EPG-X calculation with direct steady-state calculations for which solutions exist. Examples are given for SPGR and bSSFP sequences for water exchange and  MT models.
+  - The transient phase of SPGR is considered and compared with isochromat simulations (code included)
   - SPGR signal vs RF spoiling phase increment also included
+  - bSSFP including model with frequency offset for second compartment
 
 
-* **Test 2** (`test2_transient_GRE.m`)
+* **Test 2** (`test2_multicomponent_CPMG.m`)
 
-   Simulates balanced SSFP and SPGR sequences with variable flip angles following an inversion pulse, for a system with MT effects. This type of sequence has been proposed for use in Magnetic Resonance Fingerprinting (MRF) - the experiment explores the possible influence of MT on this method.
+    Simulates multiecho CPMG sequence for two compartment system coupled by intracompartmental exchange (follows Bloch-McConnell equations). This type of measurement is used for multicomponent T2 estimation - the simulation explores how exchange can influence the estimated parameters and also considers influence of frequency offset for second compartment
 
-* **Test 3** (`test3_multicomponent_CPMG.m`)
 
-  Simulates multiecho CPMG sequence for two compartment system coupled by chemical exchange (follows Bloch-McConnell equations). This type of measurement is used for multicomponent T2 estimation - the simulation explores how exchange can influence the estimated parameters
+* **Test 3** (`test3a_transient_GRE.m` and `test3b_experimental_data.m`)
 
+   3a: Simulates balanced SSFP and SPGR sequences with variable flip angles following an inversion pulse, for a system with MT effects. This type of sequence has been proposed for use in Magnetic Resonance Fingerprinting (MRF) - the experiment explores the possible influence of MT on this method.
+
+   3b: Experimental data using SPGR style sequence are fitted with the EPG-X model to determine MT parameters. Data are included in /bin
 
 * **Test 4** ( `test4_multislice_TSE.m`)
 
   Compares single slice and multi-slice TSE for a system with MT effects. In the multi-slice case the excitation of other slices creates off-resonant saturation of the bound pool magnetization in the local slice, leading to signal attenuation when compared with the single slice case.
 
+  Predictions are matched to an in-vivo experiment: experimental data are included in /bin
 
+* **Additional example** ( `Additional_bSSFPX_CEST.m`)
+
+  *Not included in the paper.* [Zhang et al, 2017](https://www.ncbi.nlm.nih.gov/pubmed/28012297/) proposed using the bSSFP off-resonance profile to detect CEST effects, using a method called bSSFPX. This script reproduces Figure 4 from Zhang et al using values taken from the paper. This shows that the EPG-X method could also be used for further modeling of CEST contrast arising over sequences 
 
 ## Detailed description of implementations
 
@@ -88,7 +95,7 @@ For two compartment simulations compartment A is taken to be the larger one (for
 
 * `EPGX_GRE_BM.m`
 
-    EPG-X(BM) GRE simulation. As above, but both T1 and T2 have two components, and the RF power and absorption line value are not needed.
+    EPG-X(BM) GRE simulation. As above, but both T1 and T2 have two components, and the RF power and absorption line value are not needed. An optional `delta` argument can be used to specify a frequency offset for the second compartment. This could be used for simulation of myelin water (explored in the paper) or even CEST with larger offsets. Note that the effect of off-resonance on the RF flip angle is not considered (yet).
 
     Signal returned is the sum of both compartments
 

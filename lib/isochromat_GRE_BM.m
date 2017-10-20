@@ -17,8 +17,8 @@ function [s,mxy] = isochromat_GRE_BM(theta,phi,TR,T1x,T2x,f,ka,Niso,varargin)
 %               Niso:       Number of isochromats for simulation
 %
 %
-%   Outputs:                
-%
+%   Optional:                
+%               delta:      frequency offset of pool b, kHz 
 %
 %   Shaihan Malik 2017-09-04
 %                 2017-10-06: rewrite in M+,M- basis  
@@ -28,7 +28,7 @@ function [s,mxy] = isochromat_GRE_BM(theta,phi,TR,T1x,T2x,f,ka,Niso,varargin)
 for ii=1:length(varargin)
     
     
-    % chemical shift of pool b, for phase gain during evolution period
+    % frequency offset of pool b, for phase gain during evolution period
     if strcmpi(varargin{ii},'delta')
         delta = 2*pi*varargin{ii+1};
     end
@@ -95,7 +95,7 @@ Xi = expm(TR*A); %<-- operator for time period TR
 Zoff = (Xi - eye(6))*(A\C);
 Zoff = repmat(Zoff(:),[Niso 1]); % replicate for all isochromats
 
-% 6/10/17: make Xi with dephasing as well
+% 6/10/17: make Xi include dephasing and delta_b
 Xi={};
 w = psi/(TR);
 for jj=1:Niso
@@ -105,21 +105,6 @@ for jj=1:Niso
 end
 Xi = blkdiag(Xi{:});
 Xi = sparse(Xi);  
-
-% Multiply this up for all isochromats
-% Xi = kron(eye(Niso),Xi);
-% Xi = sparse(Xi);    
-
-%%% Gradient dephasing matrices
-% rg={};
-% for jj=1:Niso
-%    % rg{jj} = kron(eye(2),rotmat([0 0 psi(jj)])); %<- copy matrix for both pools
-%     rg{jj} = blkdiag(rotmat([0 0 psi(jj)]),rotmat([0 0 psi(jj)-delta])); %<- different rotation for pool b
-% end
-% Rg = blkdiag(rg{:});
-% Rg = sparse(Rg);
-
-
 
 %%% Pre-allocate RF matrix
 T = zeros(N,N);

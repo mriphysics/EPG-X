@@ -51,7 +51,7 @@ for ii=1:length(varargin)
         diff = varargin{ii+1};
     end
     
-    % chemical shift of pool b, for phase gain during evolution period
+    % frequency offset of pool b, for phase gain during evolution period
     if strcmpi(varargin{ii},'delta')
         delta = 2*pi*varargin{ii+1};
     end
