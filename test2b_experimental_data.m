@@ -1,7 +1,7 @@
 %% Analyze IR-TFE data 
 
-addpath(genpath('../../../../Published Code/EPG-X'))
-
+addpath(genpath('EPGX-src'))
+addpath(genpath('lib'))
 
 %% Load in data
 % Contains im1 = calibration experiment, a series of echoes made with
@@ -124,6 +124,9 @@ end
 
 %% Figure for paper, comparing with and without diffusion
 
+cm=colormap(colorcube);
+clrs = {cm(44,:),cm(25,:),cm(48,:)};
+
 figure(3)
 clf
 for ii=1:2%<-- loop over samples
@@ -131,7 +134,7 @@ for ii=1:2%<-- loop over samples
         subplot(4,2,jj*2-1 + ii-1)
         hold on
         plot(xd{ii,jj},'k-*','markersize',2,'markerfacecolor',[0 0 0])
-        plot(S0{ii,jj},'r')
+        plot(S0{ii,jj},'color',clrs{3})
         grid on
         xlim([1 256])
         legend('Data','EPG prediction','location','north')
@@ -146,7 +149,7 @@ for ii=1:2
         subplot(4,2,4+jj*2-1 + ii-1)
         hold on
         plot(xd{ii,jj},'k-*','markersize',2,'markerfacecolor',[0 0 0])
-        plot(S{ii,jj},'r')
+        plot(S{ii,jj},'color',clrs{3})
         grid on
         xlim([1 256])
         legend('Data','EPG prediction','location','north')
@@ -172,7 +175,7 @@ aa(4) = annotation('arrow',[0.6453 0.6351],[0.4447 0.4293]);
 aa(5) = annotation('arrow',[0.6428 0.6326],[0.2170 0.2016]);
 
 set(aa,'LineWidth',1.5,'HeadLength',7,'HeadWidth',8,'HeadStyle','cback2','color',[0 0 0.8])
-set(aa(4:5),'color',[0.2 0.75 0.2])
+set(aa(4:5),'color',[0.95 0.75 0.2])
 
 setpospap([100 40 800 650])
 
@@ -311,7 +314,7 @@ fprintf(1,'RMSE before = %1.2f percent, after = %1.2f percent \n',...
 100*norm([S{IX,1};S{IX,2}]-xd_tot)/norm(xd_tot),100*norm(abs(sigfun_tot_sc(x))-xd_tot)/norm(xd_tot))
 
 cm=colormap(colorcube);
-clrs = {cm(44,:),cm(25,:),cm(48,:)};
+clrs = {cm(48,:),cm(25,:),cm(44,:)};
 figfp(11);
 lw=1;
 fs=15;
@@ -397,4 +400,4 @@ gc(3).Position = [0.08 0.13 0.33 0.3];
 gc(2).Position = [0.48 0.13 0.33 0.3];
 gc(1).Position = [0.82 0.2 0.15 0.18];
 
-print('-dpng','-r300','bin/Figure6.png')
+%print('-dpng','-r300','bin/Figure6.png')

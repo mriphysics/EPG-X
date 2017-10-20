@@ -200,16 +200,18 @@ pp = pp / (2*TR*1e-3);
 for ii=1:3
     subplot(2,3,ii)
     hold on
-    plot(pp,abs(sum(S{1,1},2)))
+    plot(pp,abs(sum(S{1,1},2)),'LineWidth',2)
     for jj=1:n2
-        plot(pp,abs(sum(S{ii+1,jj},2)))
+        plot(pp,abs(sum(S{ii+1,jj},2)),'LineWidth',2)
     end
     grid on
     xlim([-500 500])
     title(sprintf('EPG-X %d ppm',d_ppm(ii+1)))
+    set(gca,'XTick',-500:250:500)
 end
     
 xl = {[-250 0],[-500 -250],[-250 0]};
+yl = {[0 0.8],[-1 0.8],[0 0.8]};
 pidx={};
 for ii=1:3
     pidx{ii} = (pp<xl{ii}(1))|(pp>xl{ii}(2));
@@ -222,17 +224,19 @@ for ii=1:3
     mxyneg=circshift(flipud(mxy),[1 0]);
     mxy_asymm=(mxyneg-mxy)./mxyneg;
     mxy_asymm(pidx{ii})=0;
-    plot(pp,mxy_asymm)
+    plot(pp,mxy_asymm,'LineWidth',2)
     for jj=1:n2
         mxy=abs(sum(S{ii+1,jj},2));
         mxyneg=circshift(flipud(mxy),[1 0]);
         mxy_asymm=(mxyneg-mxy)./mxyneg;
         mxy_asymm(pidx{ii})=0;
-        plot(pp,mxy_asymm)
+        plot(pp,mxy_asymm,'LineWidth',2)
     end
     grid on
     xlim([-500 500])
-    title(sprintf('EPG-X %d ppm',d_ppm(ii+1)))
+    ylim(yl{ii})
+    title(sprintf('bSSFPX assymetry %d ppm',d_ppm(ii+1)))
+    set(gca,'XTick',-500:250:500)
 end
-
-    
+setpospap([100 300 1000 400])
+print -dpng -r300 bin/bSSFPXfigure.png

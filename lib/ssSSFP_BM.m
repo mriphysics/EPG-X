@@ -1,5 +1,9 @@
 %% 12-6-17: SSFP steady state, BM equations
-function [Mss] = ssSSFP_BM(alpha, TR, dw,  T1x, T2x, f,ka)
+function [Mss] = ssSSFP_BM(alpha, TR, dw,  T1x, T2x, f,ka,delta)
+
+if nargin==7
+    delta=0;
+end
 
 M0b = f;
 M0a = (1-f);
@@ -14,9 +18,9 @@ Ea = diag([-R2a -R2a -R1a]);
 Eb = diag([-R2b -R2b -R1b]);
 Ka = ka*eye(3);
 Kb = kb*eye(3);
-W  = diag([-1i*dw 1i*dw 0]);
+W  = diag([-1i*dw 1i*dw 0 -1i*(dw+2*pi*delta) 1i*(dw+2*pi*delta) 0]);
 
-A = [[Ea-Ka Kb];[Ka Eb-Kb]] + kron(eye(2),W);
+A = [[Ea-Ka Kb];[Ka Eb-Kb]] + W;
 eA = expm(A*TR);
 C = [0 0 R1a*M0a 0 0 R1b*M0b].';
 

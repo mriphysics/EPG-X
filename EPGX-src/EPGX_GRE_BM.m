@@ -34,13 +34,8 @@ function [F0,Fn,Zn,F] = EPGX_GRE_BM(theta,phi,TR,T1x,T2x,f,ka,varargin)
 %                           flip    -   flip angle, rad
 %                           t_delay -   time delay, ms
 %
-%           2017-09-07: Allow for a de-rating of the flip angle in pool b
-%           to account for this being off-resonance
 %
-%               offres:     scaling factor that pool b excitation is
-%                           multiplied by
-%
-%               delta:      chemical shift of pool b, kHz 
+%               delta:      frequency offset of pool b, kHz 
 %
 %   Outputs:                
 %               F0:         signal (F0 state) directly after each
@@ -74,16 +69,17 @@ for ii=1:length(varargin)
         prep = varargin{ii+1};
     end
     
-    % off-resonance pool b, allow excitation to have different rotation
-    % than the on resonance pool-a
-    if strcmpi(varargin{ii},'offres')
-        offres = varargin{ii+1};
-    end
-    
     % chemical shift of pool b, for phase gain during evolution period
     if strcmpi(varargin{ii},'delta')
         delta = 2*pi*varargin{ii+1};
     end
+    
+    % EXPERIMENTAL: allow excitation of pool-b to have different rotation
+    % than pool-a
+    if strcmpi(varargin{ii},'offres')
+        offres = varargin{ii+1};
+    end
+    
 end
 
 if ~exist('offres','var')
@@ -143,8 +139,8 @@ R1b = 1/T1x(2);
 R2a = 1/T2x(1);
 R2b = 1/T2x(2);
 
-%%% handle no exchange case
-if (f==0)||(ka==0)
+%%% handle single pool case
+if (f==0)%%||(ka==0)
     ka = 0;
     kb = 0;
     M0b = 0;
@@ -158,7 +154,6 @@ S = sparse(S);
 %% Set up matrices for Relaxation and Exchange
 
 %%% Relaxation-exchange matrix for transverse components
-% Lambda_T = diag([-R2a-ka -R2a-ka -R2b-kb -R2b-kb]);
 Lambda_T = diag([-R2a-ka -R2a-ka -R2b-kb-1i*delta -R2b-kb+1i*delta]);
 
 Lambda_T(1,3) = kb;
@@ -196,8 +191,6 @@ end
 
 %%% Composite exchange-relax-shift
 XS=S*Xi;XS=sparse(XS);
-Xi=sparse(Xi);
-S=sparse(S);
 
 
 %%% Pre-allocate RF matrix
@@ -242,7 +235,6 @@ end
 
 for jj=1:np 
     %%% RF transition matrix
-    %A = RF_rot_v2(theta(jj),phi(jj));
     A = RF_rot(theta(jj),phi(jj));
     
     %%% Variable order of EPG, speed up calculation

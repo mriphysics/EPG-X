@@ -32,6 +32,12 @@ for ii=1:length(varargin)
     if strcmpi(varargin{ii},'delta')
         delta = 2*pi*varargin{ii+1};
     end
+    
+    % phase range from unbalanced gradient, default is 2pi
+    if strcmpi(varargin{ii},'phase_range')
+        phase_range = varargin{ii+1};
+    end
+    
 end
 
 if ~exist('delta','var')
@@ -45,8 +51,10 @@ end
 Npulse = length(theta);
 
 %%% Isochromat phase distribution
-%psi = @(n)(2*pi*(0:fix(n)-1)/fix(n)); %<- distributes phases equivalently to FFT
-psi = 2*pi*(0:fix(Niso)-1)/fix(Niso);
+if ~exist('phase_range','var')
+    phase_range = 2*pi;
+end
+psi = phase_range*(0:fix(Niso)-1)/fix(Niso);
 
 %%% Number of variables (each isochromat has Mxa,Mya,Mza,Mxb,Myb,Mzb)
 N = 6*Niso;

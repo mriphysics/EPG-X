@@ -33,9 +33,8 @@ S =exp(-r2s(:)*tt);
 
 %% 1. Look at estimated T2s/fraction as a function of B1 offset and exchange rate
 
-%%% Leave mt struct as above but modify k term
 nk=32;ntx=32;
-
+delta = 0;
 ka = linspace(0,2.5e-3,nk);
 tx = linspace(0.75,1.25,ntx);
 
@@ -43,7 +42,7 @@ t2app = zeros(nk,ntx,2);
 fapp = zeros(nk,ntx);
 for ii=1:nk
     for jj=1:ntx
-        s = EPGX_TSE_BM(a0*tx(jj),ESP,T1,T2,f,ka(ii));
+        s = EPGX_TSE_BM(a0*tx(jj),ESP,T1,T2,f,ka(ii),'delta',delta);
         t2sol = lsqnonneg(S',abs(s(:)));
         [~,pks] = findpeaks(t2sol);
         tmp = t2s(pks);
@@ -58,7 +57,7 @@ end
 %% Summary figure
 
 %%% example curve
-[s,Fn] = EPGX_TSE_BM(a0*1.1,ESP,T1,T2,f,1e-3);
+[s,Fn] = EPGX_TSE_BM(a0*1.1,ESP,T1,T2,f,2e-3);
 
 t2sol = lsqnonneg(S',abs(s(:)));
 [~,pks] = findpeaks(t2sol);
@@ -151,3 +150,281 @@ setpospap([360   231   751   467])
 print -r300 -dpng bin/Figure7.png
 
 
+%% Another figure, examining exchange rate and delta
+
+nk=32;nd=32;
+ka2 = linspace(0,2.5e-3,nk);
+dppm = linspace(-1,1,nd);
+delta = dppm*1e-6*3*42.6e3;% ppm * 3T * 42.6kHz/T
+
+nt2_2 = 500;
+t2s_2 = linspace(10,120,nt2_2);
+r2s_2 = 1./t2s_2;
+tt = ESP*(1:Necho);
+S_2 =exp(-r2s_2(:)*tt);
+
+
+t2app_2 = zeros(nk,nd,2);
+fapp_2 = zeros(nk,nd);
+for ii=1:nk
+    for jj=1:nd
+        s = EPGX_TSE_BM(a0,ESP,T1,T2,f,ka2(ii),'delta',delta(jj));
+        t2sol = lsqnonneg(S_2',abs(s(:)));
+        [~,pks] = findpeaks(t2sol);
+        tmp = t2s_2(pks);
+        t2app_2(ii,jj,:)=tmp(1:2);%<- in case more than 2 peaks
+        % fraction
+        fapp_2(ii,jj) = sum(t2sol(pks(1)+(-5:5))) / sum(t2sol(:)); %<-- look 5 points either side
+    end
+    disp([ii jj])
+end
+
+
+%% Summary figure
+
+%%% example curve
+[s,Fn] = EPGX_TSE_BM(a0,ESP,T1,T2,f,2e-3,'delta',0.1e-6*3*42.6e3);
+
+% nt2 = 200;
+% t2s = linspace(10,120,nt2);
+% r2s = 1./t2s;
+% tt = ESP*(1:Necho);
+% S =exp(-r2s(:)*tt);
+% 
+% 
+% t2sol = lsqnonneg(S',abs(s(:)));
+% [~,pks] = findpeaks(t2sol);
+% t2s(pks)
+% sum(t2sol(pks(1)+(-5:5)))/ sum(t2sol(:)) %<-- look 5 points either side
+
+figure(1);clf;
+subplot(223)
+imagesc(dppm,ka*1e3,fapp_2)%,[0.12 0.22])
+hold
+[cc,h]=contour(dppm,ka*1e3,fapp_2,0.08:0.02:0.24);
+h.LineColor = [1 1 1];
+clabel(cc,h,'Color',[1 1 1],'fontsize',13)
+
+title('Estimated fraction, f')
+xlabel('\delta ppm')
+ylabel('k_a, s^{-1}')
+set(gca,'FontSize',12)
+
+colorbar
+
+subplot(224)
+imagesc(dppm,ka*1e3,t2app_2(:,:,1))%,[16 35])
+hold
+[cc,h]=contour(dppm,ka*1e3,t2app_2(:,:,1),15:2:25);
+h.LineColor = [1 1 1];
+clabel(cc,h,'Color',[1 1 1],'fontsize',13)
+
+title('Estimated T2b')
+xlabel('\delta ppm')
+ylabel('k_a, s^{-1}')
+set(gca,'FontSize',12)
+
+colorbar
+
+subplot(2,2,2)
+plot(t2s,t2sol)
+grid on
+hold
+xlabel('T2 / ms')
+ylabel('au')
+title('T2 spectrum from NNLS')
+xlim([15 105])
+set(gca,'FontSize',12)
+
+subplot(2,2,1)
+plot((1:50)*ESP,abs(s))
+grid on
+hold
+plot((1:50)*ESP,squeeze(abs(Fn(52,:,:))))
+xlabel('Echo time / ms')
+ylabel('Signal (F_0)')
+title('Echo amplitudes')
+xlim([1 50]*ESP)
+set(gca,'FontSize',12)
+
+
+gg=get(gcf,'children');
+%
+gg(1).Position = [0.075    0.5838    0.4    0.3412];
+gg(2).Position = [0.55    0.5838    0.4    0.3412];
+gg(3).Position = [0.91    0.1542    0.0120    0.2334];
+gg(4).Position = [0.56    0.1100    0.33    0.3412];
+gg(5).Position = [0.43    0.1542    0.0120    0.2334];
+gg(6).Position = [0.085    0.1100    0.33    0.3412];
+
+%%% labels
+axes(gg(1))
+text(-30,-0.1,'(a)','fontsize',16,'fontweight','bold')
+text(270,-0.1,'(b)','fontsize',16,'fontweight','bold')
+text(-30,-1.5,'(c)','fontsize',16,'fontweight','bold')
+text(270,-1.5,'(d)','fontsize',16,'fontweight','bold')
+
+%%% add new axes
+axes(gg(2))
+ax=axes('Position',[0.6478    0.7002    0.1218    0.1370]);
+box on
+pp = patch(t2s([-5:5]+pks(1)),t2sol([-5:5]+pks(1)),ones([1 11]));
+xlim([20 22])
+grid on
+pp.FaceColor = [0.75 0.75 0.];
+pp.EdgeColor = [0 0.5 0.75];
+aa=annotation('arrow',[0.6312 0.5845],[0.6590 0.6123]);
+
+%%% legend
+axes(gg(1))
+legend('Total echo amplitude','Compartment a','Compartment b')
+
+setpospap([360   231   751   467])
+% print -r300 -dpng bin/Figure7.png
+
+
+%% Combined figure
+
+%%% example curve
+[s,Fn] = EPGX_TSE_BM(a0*1.1,ESP,T1,T2,f,2e-3);
+
+t2sol = lsqnonneg(S',abs(s(:)));
+[~,pks] = findpeaks(t2sol);
+t2s(pks)
+sum(t2sol(pks(1)+(-5:5)))/ sum(t2sol(:)) %<-- look 5 points either side
+
+figure(1);clf;
+nr=2;nc=3;
+
+subplot(nr,nc,2)
+imagesc(tx,ka*1e3,fapp,[0.12 0.2])
+hold
+[cc,h]=contour(tx,ka*1e3,fapp,0.1:0.02:0.24);
+h.LineColor = [1 1 1];
+clabel(cc,h,'Color',[1 1 1],'fontsize',13)
+
+title('$$\hat{f}$$','Interpreter','latex','fontsize',16)
+xlabel('B_1 scaling factor')
+ylabel('k_a, s^{-1}')
+set(gca,'FontSize',12)
+
+colorbar
+
+subplot(nr,nc,5)
+imagesc(tx,ka*1e3,t2app(:,:,1),[16 35])
+hold
+[cc,h]=contour(tx,ka*1e3,t2app(:,:,1),16:4:36);
+h.LineColor = [1 1 1];
+clabel(cc,h,'Color',[1 1 1],'fontsize',13)
+
+title('$$\hat{T}_{2,b}$$','Interpreter','latex','fontsize',16)
+
+xlabel('B_1 scaling factor')
+ylabel('k_a, s^{-1}')
+set(gca,'FontSize',12)
+
+colorbar
+
+subplot(nr,nc,4)
+plot(t2s,t2sol)
+grid on
+hold
+xlabel('T_2 / ms')
+ylabel('au')
+title('T_2 spectrum from NNLS')
+xlim([15 105])
+set(gca,'FontSize',12)
+
+subplot(nr,nc,1)
+plot((1:50)*ESP,abs(s))
+grid on
+hold
+plot((1:50)*ESP,squeeze(abs(Fn(52,:,:))))
+xlabel('Echo time / ms')
+ylabel('Signal (F_0)')
+title('Echo amplitudes')
+xlim([1 50]*ESP)
+set(gca,'FontSize',12)
+
+subplot(nr,nc,3)
+imagesc(dppm,ka*1e3,fapp_2,[0.12 0.2])
+hold
+[cc,h]=contour(dppm,ka*1e3,fapp_2,0.08:0.02:0.24);
+h.LineColor = [1 1 1];
+clabel(cc,h,'Color',[1 1 1],'fontsize',13)
+
+title('$$\hat{f}$$','Interpreter','latex','fontsize',16)
+xlabel('\delta_b ppm (@3T)')
+ylabel('k_a, s^{-1}')
+set(gca,'FontSize',12)
+
+colorbar
+
+subplot(nr,nc,6)
+imagesc(dppm,ka*1e3,t2app_2(:,:,1))%,[16 35])
+hold
+[cc,h]=contour(dppm,ka*1e3,t2app_2(:,:,1),15:25);
+h.LineColor = [1 1 1];
+clabel(cc,h,'Color',[1 1 1],'fontsize',13)
+
+title('$$\hat{T}_{2,b}$$','Interpreter','latex','fontsize',16)
+xlabel('\delta_b ppm (@3T)')
+ylabel('k_a, s^{-1}')
+set(gca,'FontSize',12)
+
+colorbar
+
+gg=get(gcf,'children');
+
+%%% INset plot
+%
+axes(gg(2))
+ax=axes('Position',[0.12 0.2229 0.0949 0.0996]);
+box on
+pp = patch(t2s([-5:5]+pks(1)),t2sol([-5:5]+pks(1)),ones([1 11]));
+xlim([19 21])
+grid on
+pp.FaceColor = [0.75 0.75 0.];
+pp.EdgeColor = [0 0.5 0.75];
+aa=annotation('arrow',[0.11 0.09],[0.2104 0.1653]);
+
+pause(0.1)
+
+cbww=0.01;cbhh=0.2;
+ww = 0.225;hh=0.32;
+lg = 0.07;
+ga = 0.09;
+gg(1).Position = [lg+2*ga+3*ww+0.01    0.15    cbww    cbhh];
+gg(2).Position = [lg+2*ga+2*ww    0.1    ww    hh];
+gg(3).Position = [lg+2*ga+3*ww+0.01    0.65    cbww    cbhh];
+gg(4).Position = [lg+2*ga+2*ww    0.6    ww    hh];
+gg(7).Position = [lg+lg+2*ww+0.01    0.15    cbww    cbhh];
+gg(8).Position = [lg+lg+ww    0.1    ww    hh];
+gg(9).Position = [lg+lg+2*ww+0.01    0.65    cbww    cbhh];
+gg(10).Position = [lg+lg+ww    0.6    ww hh];
+gg(5).Position = [lg    0.6    ww    hh];
+gg(6).Position = [lg    0.1    ww    hh];
+
+%%% labels
+axes(gg(5))
+fs=18;
+text(-30,-0.15,'(a)','fontsize',fs,'fontweight','bold')
+text(-30,-1.7,'(b)','fontsize',fs,'fontweight','bold')
+text(280,-0.15,'(c)','fontsize',fs,'fontweight','bold')
+text(280,-1.7,'(d)','fontsize',fs,'fontweight','bold')
+text(640,-0.15,'(e)','fontsize',fs,'fontweight','bold')
+text(640,-1.7,'(f)','fontsize',fs,'fontweight','bold')
+
+text(600,0.05,'$$\hat{f}$$','Interpreter','latex','fontsize',14);%,'fontangle','italic')
+text(970,0.05,'$$\hat{f}$$','Interpreter','latex','fontsize',14);%,'fontangle','italic')
+
+text(580,-1.5,'ms','fontsize',14);%,'fontangle','italic')
+text(940,-1.5,'ms','fontsize',14);%,'fontangle','italic')
+
+% legend
+axes(gg(5))
+legend('Total echo amplitude','Compartment a','Compartment b')
+
+setpospap([360   231   900   450])
+%
+print -r300 -dpng bin/Figure7v2.png
