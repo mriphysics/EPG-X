@@ -1,13 +1,13 @@
-%%% Test 3: Multiecho CPMG
+%%% Test 2: Multiecho CPMG
 
 addpath(genpath('lib'));
 addpath(genpath('EPGX-src'));
 
-%%% Simplified model. For interpretation, compartment A is the larger
+%%% Water excahnge model. For interpretation, compartment A is the larger
 %%% (slow relaxing) and B is the small, fast relaxing compartment (myelin
 %%% water?)
 f = 0.20; %<--- pool b fraction (this is fast relaxing pool) i.e.  myelin water fraction
-fka = 1e-2; % This is ka->b (i.e. Ksf in mcdespot; fb*kb = fa*ka, so kb = (1-fb)*ka/fb -- this is 1/tau
+fka = 2e-2; % This is ka->b (i.e. Ksf in mcdespot; fb*kb = fa*ka, so kb = (1-fb)*ka/fb -- this is 1/tau
 T1 = [1000 500];
 T2 = [100 20];
 
@@ -54,103 +54,9 @@ for ii=1:nk
 end
 
 
-%% Summary figure
-
-%%% example curve
-[s,Fn] = EPGX_TSE_BM(a0*1.1,ESP,T1,T2,f,2e-3);
-
-t2sol = lsqnonneg(S',abs(s(:)));
-[~,pks] = findpeaks(t2sol);
-t2s(pks)
-sum(t2sol(pks(1)+(-5:5)))/ sum(t2sol(:)) %<-- look 5 points either side
-
-figure(1);clf;
-subplot(223)
-imagesc(tx,ka*1e3,fapp,[0.1 0.2])
-hold
-[cc,h]=contour(tx,ka*1e3,fapp,0.1:0.02:0.24);
-h.LineColor = [1 1 1];
-clabel(cc,h,'Color',[1 1 1],'fontsize',13)
-
-title('Estimated fraction, f')
-xlabel('B1 scaling factor')
-ylabel('k_a, s^{-1}')
-set(gca,'FontSize',12)
-
-colorbar
-
-subplot(224)
-imagesc(tx,ka*1e3,t2app(:,:,1),[16 35])
-hold
-[cc,h]=contour(tx,ka*1e3,t2app(:,:,1),16:4:36);
-h.LineColor = [1 1 1];
-clabel(cc,h,'Color',[1 1 1],'fontsize',13)
-
-title('Estimated T2b')
-xlabel('B1 scaling factor')
-ylabel('k_a, s^{-1}')
-set(gca,'FontSize',12)
-
-colorbar
-
-subplot(2,2,2)
-plot(t2s,t2sol)
-grid on
-hold
-xlabel('T2 / ms')
-ylabel('au')
-title('T2 spectrum from NNLS')
-xlim([15 105])
-set(gca,'FontSize',12)
-
-subplot(2,2,1)
-plot((1:50)*ESP,abs(s))
-grid on
-hold
-plot((1:50)*ESP,squeeze(abs(Fn(52,:,:))))
-xlabel('Echo time / ms')
-ylabel('Signal (F_0)')
-title('Echo amplitudes')
-xlim([1 50]*ESP)
-set(gca,'FontSize',12)
 
 
-gg=get(gcf,'children');
-%
-gg(1).Position = [0.075    0.5838    0.4    0.3412];
-gg(2).Position = [0.55    0.5838    0.4    0.3412];
-gg(3).Position = [0.91    0.1542    0.0120    0.2334];
-gg(4).Position = [0.56    0.1100    0.33    0.3412];
-gg(5).Position = [0.43    0.1542    0.0120    0.2334];
-gg(6).Position = [0.085    0.1100    0.33    0.3412];
-
-%%% labels
-axes(gg(1))
-text(-30,-0.1,'(a)','fontsize',16,'fontweight','bold')
-text(270,-0.1,'(b)','fontsize',16,'fontweight','bold')
-text(-30,-1.5,'(c)','fontsize',16,'fontweight','bold')
-text(270,-1.5,'(d)','fontsize',16,'fontweight','bold')
-
-%%% add new axes
-axes(gg(2))
-ax=axes('Position',[0.6478    0.7002    0.1218    0.1370]);
-box on
-pp = patch(t2s([-5:5]+pks(1)),t2sol([-5:5]+pks(1)),ones([1 11]));
-xlim([20 22])
-grid on
-pp.FaceColor = [0.75 0.75 0.];
-pp.EdgeColor = [0 0.5 0.75];
-aa=annotation('arrow',[0.6312 0.5845],[0.6590 0.6123]);
-
-%%% legend
-axes(gg(1))
-legend('Total echo amplitude','Compartment a','Compartment b')
-
-setpospap([360   231   751   467])
-print -r300 -dpng bin/Figure7.png
-
-
-%% Another figure, examining exchange rate and delta
+%% Now examine effect of delta and kx for B1scaling=1
 
 nk=32;nd=32;
 ka2 = linspace(0,2.5e-3,nk);
@@ -179,108 +85,6 @@ for ii=1:nk
     disp([ii jj])
 end
 
-
-%% Summary figure
-
-%%% example curve
-[s,Fn] = EPGX_TSE_BM(a0,ESP,T1,T2,f,2e-3,'delta',0.1e-6*3*42.6e3);
-
-% nt2 = 200;
-% t2s = linspace(10,120,nt2);
-% r2s = 1./t2s;
-% tt = ESP*(1:Necho);
-% S =exp(-r2s(:)*tt);
-% 
-% 
-% t2sol = lsqnonneg(S',abs(s(:)));
-% [~,pks] = findpeaks(t2sol);
-% t2s(pks)
-% sum(t2sol(pks(1)+(-5:5)))/ sum(t2sol(:)) %<-- look 5 points either side
-
-figure(1);clf;
-subplot(223)
-imagesc(dppm,ka*1e3,fapp_2)%,[0.12 0.22])
-hold
-[cc,h]=contour(dppm,ka*1e3,fapp_2,0.08:0.02:0.24);
-h.LineColor = [1 1 1];
-clabel(cc,h,'Color',[1 1 1],'fontsize',13)
-
-title('Estimated fraction, f')
-xlabel('\delta ppm')
-ylabel('k_a, s^{-1}')
-set(gca,'FontSize',12)
-
-colorbar
-
-subplot(224)
-imagesc(dppm,ka*1e3,t2app_2(:,:,1))%,[16 35])
-hold
-[cc,h]=contour(dppm,ka*1e3,t2app_2(:,:,1),15:2:25);
-h.LineColor = [1 1 1];
-clabel(cc,h,'Color',[1 1 1],'fontsize',13)
-
-title('Estimated T2b')
-xlabel('\delta ppm')
-ylabel('k_a, s^{-1}')
-set(gca,'FontSize',12)
-
-colorbar
-
-subplot(2,2,2)
-plot(t2s,t2sol)
-grid on
-hold
-xlabel('T2 / ms')
-ylabel('au')
-title('T2 spectrum from NNLS')
-xlim([15 105])
-set(gca,'FontSize',12)
-
-subplot(2,2,1)
-plot((1:50)*ESP,abs(s))
-grid on
-hold
-plot((1:50)*ESP,squeeze(abs(Fn(52,:,:))))
-xlabel('Echo time / ms')
-ylabel('Signal (F_0)')
-title('Echo amplitudes')
-xlim([1 50]*ESP)
-set(gca,'FontSize',12)
-
-
-gg=get(gcf,'children');
-%
-gg(1).Position = [0.075    0.5838    0.4    0.3412];
-gg(2).Position = [0.55    0.5838    0.4    0.3412];
-gg(3).Position = [0.91    0.1542    0.0120    0.2334];
-gg(4).Position = [0.56    0.1100    0.33    0.3412];
-gg(5).Position = [0.43    0.1542    0.0120    0.2334];
-gg(6).Position = [0.085    0.1100    0.33    0.3412];
-
-%%% labels
-axes(gg(1))
-text(-30,-0.1,'(a)','fontsize',16,'fontweight','bold')
-text(270,-0.1,'(b)','fontsize',16,'fontweight','bold')
-text(-30,-1.5,'(c)','fontsize',16,'fontweight','bold')
-text(270,-1.5,'(d)','fontsize',16,'fontweight','bold')
-
-%%% add new axes
-axes(gg(2))
-ax=axes('Position',[0.6478    0.7002    0.1218    0.1370]);
-box on
-pp = patch(t2s([-5:5]+pks(1)),t2sol([-5:5]+pks(1)),ones([1 11]));
-xlim([20 22])
-grid on
-pp.FaceColor = [0.75 0.75 0.];
-pp.EdgeColor = [0 0.5 0.75];
-aa=annotation('arrow',[0.6312 0.5845],[0.6590 0.6123]);
-
-%%% legend
-axes(gg(1))
-legend('Total echo amplitude','Compartment a','Compartment b')
-
-setpospap([360   231   751   467])
-% print -r300 -dpng bin/Figure7.png
 
 
 %% Combined figure
@@ -361,7 +165,7 @@ set(gca,'FontSize',12)
 colorbar
 
 subplot(nr,nc,6)
-imagesc(dppm,ka*1e3,t2app_2(:,:,1))%,[16 35])
+imagesc(dppm,ka*1e3,t2app_2(:,:,1),[10 25])
 hold
 [cc,h]=contour(dppm,ka*1e3,t2app_2(:,:,1),15:25);
 h.LineColor = [1 1 1];
@@ -427,4 +231,4 @@ legend('Total echo amplitude','Compartment a','Compartment b')
 
 setpospap([360   231   900   450])
 %
-print -r300 -dpng bin/Figure7v2.png
+print -r300 -dpng bin/Test2_fig1.png

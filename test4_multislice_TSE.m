@@ -2,7 +2,8 @@
 % 2017-09-13
 % version 2 - multiple slices as per in-vivo experiments
 
-addpath(genpath('../../../../Published Code/EPG-X'))
+addpath(genpath('EPGX-src'))
+addpath(genpath('lib'))
 
 %%% Sequence
 %%% Number of refocusing pulses
@@ -55,7 +56,7 @@ for IX = 1:2
             
             
         case 2
-            %%% Grey matter, caudate nucleus
+            %%% Grey matter, caudate nucleus (also Gloor, 2008)
             f = 0.0610;
             kf = 2.3e-3;
             kb = kf * (1-f)/f;
@@ -73,13 +74,14 @@ for IX = 1:2
         mz = {};
         ss = {};
         
-        for jj = 1:nn %<-- loop over number of slices
+        for jj = 1:nn %<-- loop over number of slices (each one was a separate experiment)
             
             %%% Set up sequence. Slice order goes odd then even.
             slice_order = [1:2:nslice(jj) 2:2:nslice(jj)];
-            soi = ceil(nslice(jj)/2);
+            soi = ceil(nslice(jj)/2);%<-- slice of interest is the middle slice
             
-            %%% generate the lineshape for each slice
+            %%% generate the lineshape for each slice (depends on frequency
+            %%% offset)
             fs = df(JX) * (-floor(nslice(jj)/2):floor(nslice(jj)/2));
             GG = interp1(ff,G,fs);
             
@@ -88,7 +90,7 @@ for IX = 1:2
             slice_order = repmat(slice_order,[1 Ntr]);
             Ntot = Ntr * Nsl;
             
-            %%% now bulk out the shot to include dummy pulses
+            %%% now work out delay to add after each slice
             Tshot = ESP*(nrefocus+0.5);
             Tdelay = TR/nslice(jj) - Tshot;
             
@@ -101,7 +103,7 @@ for IX = 1:2
             
             %%% Initialise magnetization
             z0 = [(1-f) f];
-            ss{jj} = [];%zeros([npulse-1 Ntot]);
+            ss{jj} = [];
             
             % loop over the slices
             for ii=1:Ntot
@@ -126,13 +128,13 @@ for IX = 1:2
                 
                 
             end
-            sig{JX}(jj,IX) = abs(ss{jj}(13,end));
+            sig{JX}(jj,IX) = abs(ss{jj}(13,end));%<- record signal in echo 13 of the last simulated TR period
             disp([JX jj IX])
         end
         
     end
 end
-sig{1}(:,3)=1; % CSF
+sig{1}(:,3)=1; % CSF is defined as having no MT effect, so signals are same
 sig{2}(:,3)=1;
 
 %% Load in images and ROI measurements (made in another script)
@@ -142,7 +144,8 @@ load bin/test4_imagedata
 
 leg={'White Matter','Gray Matter (Caudate)','Cerebrospinal Fluid'};
 
-figfp(21)
+figure(21)
+clf
 sl = [1 4 8];
 nr=3;nc=3;
 fs=18;
@@ -218,5 +221,5 @@ for ii=1:3
     gc(ii+3).Position = [0.7-0.3*(ii-1) 0.3 0.23 0.18];
 end
 
-print -dpng -r300 bin/Figure8.png
+print -dpng -r300 bin/Test4_fig1.png
 

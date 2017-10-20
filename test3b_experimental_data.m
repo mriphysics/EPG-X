@@ -1,4 +1,4 @@
-%% Analyze IR-TFE data 
+%% Analyze experimental IR-TFE data (MRF style experiment)
 
 addpath(genpath('EPGX-src'))
 addpath(genpath('lib'))
@@ -179,7 +179,7 @@ set(aa(4:5),'color',[0.95 0.75 0.2])
 
 setpospap([100 40 800 650])
 
-print('-dpng','-r300','bin/Figure5.png')
+print('-dpng','-r300','bin/Test3b_fig1.png')
 
 
 %% Now fit the BSA data using the two pool model
@@ -400,4 +400,4 @@ gc(3).Position = [0.08 0.13 0.33 0.3];
 gc(2).Position = [0.48 0.13 0.33 0.3];
 gc(1).Position = [0.82 0.2 0.15 0.18];
 
-%print('-dpng','-r300','bin/Figure6.png')
+print('-dpng','-r300','bin/Test3b_fig2.png')

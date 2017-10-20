@@ -22,7 +22,7 @@ f_MT = 0.117;
 k_MT = 4.3e-3;
 T2_MT = 45;
 
-%%% Relaxation parameters: ChX
+%%% Relaxation parameters: exchange
 T1x = [1000 500];
 T2x = [100 20];    
 kx = 2e-3;
@@ -145,6 +145,8 @@ title('SPGR steady-state dependence on \Phi_0')
 set(gca,'fontsize',13)
 
 %%% Add steady state solutions
+%%% ds2nfu comes from: https://uk.mathworks.com/matlabcentral/fileexchange/10656-data-space-to-figure-units-conversion
+%%% if you don't have it, comment out this block
 [xx,yy]=ds2nfu([0 5],abs(ss0)*[1 1]);
 aa1 = annotation('arrow',xx,yy,'Color',p1.Color);
 [xx,yy]=ds2nfu([190 181],abs(ss0)*[1 1]);
@@ -164,7 +166,7 @@ text(-25,0.035,'(b)','fontsize',20,'fontweight','bold')
 
 setpospap([360   174   460   460])
 
-print -dpng -r300 bin/Figure2.png
+print -dpng -r300 bin/Test1_fig1.png
 
 %% EPG-X(BM) with variable delta
 phi_arr = 1:1:180;
@@ -199,28 +201,6 @@ else
     load bin/SigAll_delta
 end
 
-%%% Try with isochromat simulation
-% 
-% %%% Just for phi=0
-% phi = RF_phase_cycle(npulse,123);
-% 
-% Siso = zeros([nd 1]);
-% Sepg = zeros([nd 1]);
-% for jj=1:nd
-%     % EPG-X
-%     tic;
-%     tmp = EPGX_GRE_BM(AA,phi,TR,T1x,T2x,fx,kx,'delta',delta_arr(jj)*1e-6*3*42.6e3,'kmax',50);
-%     toc
-%     Sepg(jj)=abs(tmp(end));
-%     % Isochromat
-%     tic;
-%     tmp = isochromat_GRE_BM(AA,phi,TR,T1_MT,T2x,f,k,400,'delta',delta_arr(jj)*1e-6*3*42.6e3,'phase_range',4*pi);
-%     toc
-%     Siso(jj)=abs(tmp(end));
-%     disp(jj)
-% end
-
-
 %% Figure
 figure(1)
 clf
@@ -233,7 +213,7 @@ set(gca,'fontsize',14)
 zlim([0.045 0.075])
 setpospap([50 300 1300 440])
 colormap parula
-print -dpng -r300 bin/SPGR_spoiling_chemshift.png
+print -dpng -r300 bin/Test1_fig2.png
 
 
 %% bSSFP with same parameters as above
@@ -359,7 +339,7 @@ for jj=1:4
     text(-4,-0.02,lbls{jj},'fontsize',20,'fontweight','bold')
 end
 %
-print -dpng -r300 bin/Figure3v2.png
+print -dpng -r300 bin/Test1_fig3.png
 
 
 %% Supporting figure with approach to steady state
@@ -393,7 +373,7 @@ ylabel('\psi / rad')
 colormap gray
 
 setpospap([300 100 700 550])
-print -dpng -r300 bin/SuppFig_ssbSSFP.png
+print -dpng -r300 bin/Test1_fig4.png
 
 %% Cross validation with isochromat simulations
 
@@ -496,4 +476,4 @@ text(215,-0.02,'(b)','fontsize',18,'fontweight','bold')
 text(215,-0.3,'(d)','fontsize',18,'fontweight','bold')
 text(215,-0.58,'(f)','fontsize',18,'fontweight','bold')
 %
-print -dpng -r300 bin/SF1.png
+print -dpng -r300 bin/Test1_fig5.png
