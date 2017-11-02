@@ -38,8 +38,8 @@ D = diag([-1 -1 1 1]);
 S = [1 0 0 0];
 
 % SS solution
-Mss = S*T * inv(D - eA*T) * (eA - I) * inv(A) * C;
 
+Mss = S * inv(D - T*eA) * T * (eA - I) * inv(A) * C;
 
 
     %%% NORMAL EPG transition matrix but add MT 

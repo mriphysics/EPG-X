@@ -39,7 +39,7 @@ Four separate example scripts are given in the top directory; these may be used 
 
    3a: Simulates balanced SSFP and SPGR sequences with variable flip angles following an inversion pulse, for a system with MT effects. This type of sequence has been proposed for use in Magnetic Resonance Fingerprinting (MRF) - the experiment explores the possible influence of MT on this method.
 
-   3b: Experimental data using SPGR style sequence are fitted with the EPG-X model to determine MT parameters. Data are included in /bin
+   3b: Experimental (phantom) data using SPGR style sequence are fitted with the EPG-X model to determine MT parameters. Data are included in /bin
 
 * **Test 4** ( `test4_multislice_TSE.m`)
 
@@ -49,7 +49,7 @@ Four separate example scripts are given in the top directory; these may be used 
 
 * **Additional example** ( `Additional_bSSFPX_CEST.m`)
 
-  *Not included in the paper.* [Zhang et al, 2017](https://www.ncbi.nlm.nih.gov/pubmed/28012297/) proposed using the bSSFP off-resonance profile to detect CEST effects, using a method called bSSFPX. This script reproduces Figure 4 from Zhang et al using values taken from the paper. This shows that the EPG-X method could also be used for further modeling of CEST contrast arising over sequences 
+  *Not included in the paper.* [Zhang et al, 2017](https://www.ncbi.nlm.nih.gov/pubmed/28012297/) proposed using the bSSFP off-resonance profile to detect CEST effects, using a method called bSSFPX. This script reproduces Figure 4 from Zhang et al using values taken from the paper. This shows that the EPG-X method could also be used for further modeling of CEST contrast arising over sequences
 
 ## Detailed description of implementations
 

@@ -124,8 +124,7 @@ end
 
 %% Figure for paper, comparing with and without diffusion
 
-cm=colormap(colorcube);
-clrs = {cm(44,:),cm(25,:),cm(48,:)};
+clrs = {[37 209 49]/256,[23 139 234]/256,[1 0 0]};
 
 figure(3)
 clf
@@ -134,7 +133,7 @@ for ii=1:2%<-- loop over samples
         subplot(4,2,jj*2-1 + ii-1)
         hold on
         plot(xd{ii,jj},'k-*','markersize',2,'markerfacecolor',[0 0 0])
-        plot(S0{ii,jj},'color',clrs{3})
+        plot(S0{ii,jj},'color',clrs{1})
         grid on
         xlim([1 256])
         legend('Data','EPG prediction','location','north')
@@ -149,7 +148,7 @@ for ii=1:2
         subplot(4,2,4+jj*2-1 + ii-1)
         hold on
         plot(xd{ii,jj},'k-*','markersize',2,'markerfacecolor',[0 0 0])
-        plot(S{ii,jj},'color',clrs{3})
+        plot(S{ii,jj},'color',clrs{1})
         grid on
         xlim([1 256])
         legend('Data','EPG prediction','location','north')
@@ -171,11 +170,14 @@ aa=[];
 aa(1) = annotation('arrow',[0.4537 0.4450],[0.8246 0.8000]);
 aa(2) = annotation('arrow',[0.3163 0.3063],[0.6062 0.5908]);
 aa(3) = annotation('arrow',[0.4440 0.4338],[0.6062 0.5908]);
-aa(4) = annotation('arrow',[0.6453 0.6351],[0.4447 0.4293]);
-aa(5) = annotation('arrow',[0.6428 0.6326],[0.2170 0.2016]);
+aa(4) = annotation('arrow',[0.4537 0.4450],[0.8246 0.8000]-0.44);
+aa(5) = annotation('arrow',[0.3163 0.3063],[0.6062 0.5908]-0.44);
+aa(6) = annotation('arrow',[0.4440 0.4338],[0.6062 0.5908]-0.44);
+aa(7) = annotation('arrow',[0.6453 0.6351],[0.4447 0.4293]);
+aa(8) = annotation('arrow',[0.6428 0.6326],[0.2170 0.2016]);
 
 set(aa,'LineWidth',1.5,'HeadLength',7,'HeadWidth',8,'HeadStyle','cback2','color',[0 0 0.8])
-set(aa(4:5),'color',[0.95 0.75 0.2])
+set(aa(7:8),'color',[0.95 0.75 0.2])
 
 setpospap([100 40 800 650])
 
@@ -247,9 +249,10 @@ kf = x(1)*1e-3;
 R1b = 1e-3/x(4);
 kb = kf * (1-x(2))/x(2);
 
-R1obs = 0.5*(R1f + kf + R1b + kb)-0.5*sqrt((R1f + kf + R1b + kb).^2 ...
-    -4*(R1f*R1b + R1f*kb + R1b*kf));
-
+% R1obs = 0.5*(R1f + kf + R1b + kb)-0.5*sqrt((R1f + kf + R1b + kb).^2 ...
+%     -4*(R1f*R1b + R1f*kb + R1b*kf));
+L = [[-R1f-kf kb];[kf -R1b-kb]];
+R1obs = min(abs(eig(L))); %<-- R1obs is the smaller (least negative) eigenvalue of L
 
 
 fprintf(1,'T1bound = %1.1f T1free = %1.1f T1obs =%1.1f kf = %1.3e s^-1 f = %1.3f F=%1.3f G(0) = %1.2f us\n',...
@@ -313,9 +316,10 @@ fprintf(1,'T1bound = %1.1f T1free = %1.1f T1obs =%1.1f kf = %1.3e s^-1 f = %1.3f
 fprintf(1,'RMSE before = %1.2f percent, after = %1.2f percent \n',...
 100*norm([S{IX,1};S{IX,2}]-xd_tot)/norm(xd_tot),100*norm(abs(sigfun_tot_sc(x))-xd_tot)/norm(xd_tot))
 
-cm=colormap(colorcube);
-clrs = {cm(48,:),cm(25,:),cm(44,:)};
-figfp(11);
+clrs = {[37 209 49]/256,[23 139 234]/256,[1 0 0]};
+
+figure(11)
+clf
 lw=1;
 fs=15;
 

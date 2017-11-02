@@ -36,8 +36,7 @@ D = diag([-1 -1 1 -1 -1 1]);
 S = [1 0 0 1 0 0];
 
 % SS solution
-Mss = S* T * inv(D - eA*T) * (eA - I) * inv(A) * C;
-
+Mss = S* inv(D - T*eA) * T * (eA - I) * inv(A) * C;
 
     %%% NORMAL EPG transition matrix but replicated twice 
     % As per Weigel et al JMR 2010 276-285 

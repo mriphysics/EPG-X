@@ -191,7 +191,7 @@ grid on
 pp.FaceColor = [0.75 0.75 0.];
 pp.EdgeColor = [0 0.5 0.75];
 aa=annotation('arrow',[0.11 0.09],[0.2104 0.1653]);
-
+colormap parula
 pause(0.1)
 
 cbww=0.01;cbhh=0.2;
