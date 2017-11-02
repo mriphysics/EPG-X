@@ -101,11 +101,11 @@ figure(1);clf;
 nr=2;nc=3;
 
 subplot(nr,nc,2)
-imagesc(tx,ka*1e3,fapp,[0.12 0.2])
+imagesc(tx,ka*1e3,fapp,[0.12 0.22])
 hold
-[cc,h]=contour(tx,ka*1e3,fapp,0.1:0.02:0.24);
+[cc,h]=contour(tx,ka*1e3,fapp,0.1:0.02:0.24,'linewidth',1.5);
 h.LineColor = [1 1 1];
-clabel(cc,h,'Color',[1 1 1],'fontsize',13)
+clabel(cc,h,'Color',[1 1 1],'fontweight','bold')
 
 title('$$\hat{f}$$','Interpreter','latex','fontsize',16)
 xlabel('B_1 scaling factor')
@@ -115,11 +115,11 @@ set(gca,'FontSize',12)
 colorbar
 
 subplot(nr,nc,5)
-imagesc(tx,ka*1e3,t2app(:,:,1),[16 35])
+imagesc(tx,ka*1e3,t2app(:,:,1),[16 45])
 hold
-[cc,h]=contour(tx,ka*1e3,t2app(:,:,1),16:4:36);
+[cc,h]=contour(tx,ka*1e3,t2app(:,:,1),16:4:36,'linewidth',1.5);
 h.LineColor = [1 1 1];
-clabel(cc,h,'Color',[1 1 1],'fontsize',13)
+clabel(cc,h,'Color',[1 1 1],'fontweight','bold')
 
 title('$$\hat{T}_{2,b}$$','Interpreter','latex','fontsize',16)
 
@@ -140,10 +140,10 @@ xlim([15 105])
 set(gca,'FontSize',12)
 
 subplot(nr,nc,1)
-plot((1:50)*ESP,abs(s))
+plot((1:50)*ESP,abs(s),'linewidth',2)
 grid on
 hold
-plot((1:50)*ESP,squeeze(abs(Fn(52,:,:))))
+plot((1:50)*ESP,squeeze(abs(Fn(52,:,:))),'linewidth',2)
 xlabel('Echo time / ms')
 ylabel('Signal (F_0)')
 title('Echo amplitudes')
@@ -151,11 +151,11 @@ xlim([1 50]*ESP)
 set(gca,'FontSize',12)
 
 subplot(nr,nc,3)
-imagesc(dppm,ka*1e3,fapp_2,[0.12 0.2])
+imagesc(dppm,ka*1e3,fapp_2,[0.12 0.22])
 hold
-[cc,h]=contour(dppm,ka*1e3,fapp_2,0.08:0.02:0.24);
+[cc,h]=contour(dppm,ka*1e3,fapp_2,0.08:0.02:0.24,'linewidth',1.5);
 h.LineColor = [1 1 1];
-clabel(cc,h,'Color',[1 1 1],'fontsize',13)
+clabel(cc,h,'Color',[1 1 1],'fontweight','bold')
 
 title('$$\hat{f}$$','Interpreter','latex','fontsize',16)
 xlabel('\delta_b ppm (@3T)')
@@ -165,13 +165,13 @@ set(gca,'FontSize',12)
 colorbar
 
 subplot(nr,nc,6)
-imagesc(dppm,ka*1e3,t2app_2(:,:,1),[10 25])
+imagesc(dppm,ka*1e3,t2app_2(:,:,1),[10 22])
 hold
-[cc,h]=contour(dppm,ka*1e3,t2app_2(:,:,1),15:25);
+[cc,h]=contour(dppm,ka*1e3,t2app_2(:,:,1),15:25,'linewidth',1.5);
 h.LineColor = [1 1 1];
-clabel(cc,h,'Color',[1 1 1],'fontsize',13)
+clabel(cc,h,'Color',[1 1 1],'fontweight','bold')
 
-title('$$\hat{T}_{2,b}$$','Interpreter','latex','fontsize',16)
+title('$$\hat{T}_{2,b}$$','Interpreter','latex')
 xlabel('\delta_b ppm (@3T)')
 ylabel('k_a, s^{-1}')
 set(gca,'FontSize',12)
@@ -191,9 +191,10 @@ grid on
 pp.FaceColor = [0.75 0.75 0.];
 pp.EdgeColor = [0 0.5 0.75];
 aa=annotation('arrow',[0.11 0.09],[0.2104 0.1653]);
-colormap parula
-pause(0.1)
+colormap viridis %<-- https://uk.mathworks.com/matlabcentral/fileexchange/51986-perceptually-uniform-colormaps
+pause(0.01)
 
+%
 cbww=0.01;cbhh=0.2;
 ww = 0.225;hh=0.32;
 lg = 0.07;
