@@ -6,7 +6,7 @@ The EPG algorithm is extended to coupled exchanging systems that are:
 1. governed by the Bloch-McConnell equations (BM) or
 2. described by the 'binary spin bath' model for pulsed magnetization transfer (MT).
 
-The theory is described in an upcoming paper ([**pre-print here**](https://arxiv.org/abs/1709.00832)) . Essentially a two compartment system is modelled by describing each compartment with a separate EPG calculation. The operators governing evolution periods between RF pulses are updated to include exchange between compartments. For the MT case the second compartment consists only of longitudinal states. Although only two compartment systems are handled by this code, the method is in principle straightforward to extend.
+The theory is described in [**this paper**](http://onlinelibrary.wiley.com/doi/10.1002/mrm.27040/full) (follow the link, it's open access). Essentially a two compartment system is modelled by describing each compartment with a separate EPG calculation. The operators governing evolution periods between RF pulses are updated to include exchange between compartments. For the MT case the second compartment consists only of longitudinal states. Although only two compartment systems are handled by this code, the method is in principle straightforward to extend.
 
 <img src="bin/diag.png" alt="diagram" width="70%">
 
