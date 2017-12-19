@@ -10,7 +10,8 @@ The theory is described in [**this paper**](http://onlinelibrary.wiley.com/doi/1
 
 <img src="bin/diag.png" alt="diagram" width="70%">
 
-This code is distributed under the MIT license. If you find it useful please cite [![DOI](https://zenodo.org/badge/99567997.svg)](https://zenodo.org/badge/latestdoi/99567997)
+This code is distributed under the MIT license. If you find it useful please cite the publication [**Malik et al, MRM 2017. doi:10.1002/mrm.27040 **](http://onlinelibrary.wiley.com/doi/10.1002/mrm.27040/full).
+You can also cite the code itself cite [![DOI](https://zenodo.org/badge/99567997.svg)](https://zenodo.org/badge/latestdoi/99567997).
 
 Shaihan Malik, King's College London, July 2017. (updated October 2017)
 [@shaihanmalik](https://twitter.com/shaihanmalik)
