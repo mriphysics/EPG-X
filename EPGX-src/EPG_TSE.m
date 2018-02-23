@@ -1,5 +1,6 @@
 function [F0,Fn,Zn,F] = EPG_TSE(theta,ESP,T1,T2,varargin)
 %   Single pool EPG (classic version) for TSE sequences
+%   [F0,Fn,Zn,F] = EPG_TSE(theta,ESP,T1,T2,varargin)
 %
 %   arguments:
 %               theta:      vector of flip angles (rad) including excitation

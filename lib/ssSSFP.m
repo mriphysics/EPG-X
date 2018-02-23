@@ -13,7 +13,11 @@ eA = expm(A*TR);
 C = [0 0 R1].';
 
 % Assume RF is rotation around x-axis. Phase doesn't matter here
-T = RF_rot(alpha,0);
+if isreal(alpha) %<-- edit 15/12/2017
+    T = RF_rot(alpha,0);
+else
+    T = RF_rot(abs(alpha),angle(alpha));
+end
 
 I = eye(3);
 
