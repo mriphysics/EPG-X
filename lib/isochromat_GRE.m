@@ -14,6 +14,12 @@ function [s,mxy,M] = isochromat_GRE(theta,phi,TR,T1,T2,Niso,varargin)
 %               T2:         T2, ms
 %               Niso:       number of isochromats, dephasing angles linearly spaced -pi to pi
 %
+%   optional arguments (use string then value as next argument)
+%
+%              diff:        structure with fields:
+%                           G    - Gradient amplitude(s)
+%                           tau  - Gradient durations(s)
+%                           D    - Diffusion coeff m^2/s (i.e. expect 10^-9)
 %
 %   Outputs:                
 %               s:          signal (ensemble average) directly after each
@@ -22,9 +28,11 @@ function [s,mxy,M] = isochromat_GRE(theta,phi,TR,T1,T2,Niso,varargin)
 %
 %
 %   Shaihan Malik 2017-09-04
-
+%                 2018-07-17: added diffusion handling  
 
 %% Extra variables
+
+diffusion_calc = false;
 
 for ii=1:length(varargin)
 
@@ -32,13 +40,20 @@ for ii=1:length(varargin)
     if strcmpi(varargin{ii},'prep')
         prep = varargin{ii+1};
     end
+    
+    % Diffusion - structure contains, G, tau, D - added 17/7/18
+    if strcmpi(varargin{ii},'diff')
+        diff = varargin{ii+1};
+        diffusion_calc = true;
+    end
+    
+    
 end
 
 %%% Fix number of TR periods
 Npulse = length(theta);
 
 %%% Isochromat phase distribution
-%psi = @(n)(2*pi*(0:fix(n)-1)/fix(n)); %<- distributes phases equivalently to FFT
 psi = 2*pi*(0:fix(Niso)-1)/fix(Niso);
 
 %%% Number of variables (each isochromat has Mx,My,Mz)
@@ -65,12 +80,29 @@ E(3*N*ii-N+3*(ii-1)+3)=E1;
 Reg = E*Rg;
 Reg=sparse(Reg);
 
+
+if diffusion_calc
+    %%% Build a k-space filter function
+    kk = -floor((Niso)/2):floor((Niso-1)/2); 
+
+    kk = abs(kk); %<-- kk is the ORDER of the EPG state, so it must be positive (i.e. a single k accounts for the positive and negative states of that order) 
+    [bDL, bDT] = EPG_diffusion_weights(diff.G,diff.tau,diff.D,kk);
+    
+    bDL=ifftshift(bDL);
+    bDT=ifftshift(bDT);
+end
+
 %%% Now run the sim
 M = zeros([N Npulse]);
 
+xidx = 1:3:N; % indices of all Mx
+yidx = 2:3:N; % indices of all My
+zidx = 3:3:N; % indices of all Mz 
+
 % Initialize Mz=1 for all isochromats
 M0 = zeros([N 1]);
-M0(3:3:end)=1;
+M0(zidx)=1;
+
 
 %%% Initialize RF rotation matrix, which is modified but not re-declared
 %%% each time
@@ -78,9 +110,6 @@ T=sparse(zeros([N N]));
 
 % Initialise with thermal equilibrium
 M(:,1) = M0; 
-
-% Prepare variables for recovery of z-magnetization
-zidx=3:3:N; % indices of all Mz terms
 zf = (1-E1);% thermal recovery of Mz in TR period
 
 % Loop over pulses: flip, record FID then dephase
@@ -96,12 +125,29 @@ for jj=1:Npulse
     if jj<Npulse
         M(:,jj+1) = Reg*M(:,jj);
         M(zidx,jj+1) = M(zidx,jj+1) + zf;
+        
+        if diffusion_calc
+            
+            % Now apply diffusion filtering
+            mxy = M(xidx,jj+1)+1i*M(yidx,jj+1);
+            mz = M(zidx,jj+1);
+            
+            % Apply
+            mxyf = ifft(fft(mxy(:)).*bDT(:));
+            mzf = ifft(fft(mz(:)).*bDL(:));
+            
+            % Put these back in the array
+            M(xidx,jj+1)=real(mxyf);
+            M(yidx,jj+1)=imag(mxyf);
+            M(zidx,jj+1)=real(mzf);
+        end
+       
+    
     end
-     
 end
 
 % Now generate signal and demodulate it
-mxy = M(1:3:end,:) + 1i*M(2:3:end,:);
+mxy = M(xidx,:) + 1i*M(yidx,:);
 % Get signal from mean
 s = 1i*mean(mxy,1);
 % demodulate this
@@ -142,6 +188,5 @@ s = s .* exp(-1i*phi(1:Npulse));
         
     end
 
-
-
+    
 end
