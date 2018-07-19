@@ -21,6 +21,12 @@ function [s,mxy,M] = isochromat_GRE(theta,phi,TR,T1,T2,Niso,varargin)
 %                           tau  - Gradient durations(s)
 %                           D    - Diffusion coeff m^2/s (i.e. expect 10^-9)
 %
+%               prep:       can be used to simulate prep pulse prior to
+%                           gradient echo. Assume all transverse
+%                           magnetization after prep is spoiled.
+%                           structure with fields:
+%                           flip    -   flip angle, rad
+%                           t_delay -   time delay, ms
 %   Outputs:                
 %               s:          signal (ensemble average) directly after each
 %                           excitation
@@ -103,12 +109,26 @@ zidx = 3:3:N; % indices of all Mz
 M0 = zeros([N 1]);
 M0(zidx)=1;
 
+%%% Prep pulse - execute here
+if exist('prep','var')
+    %%% Assume the prep pulse leaves NO transverse magnetization, or that
+    %%% this is spoiled so that it cannot be refocused. Only consider
+    %%% z-terms
+    
+    % RF rotation just cos(theta) on  Mz term
+    M0(zidx)=cos(prep.flip)*M0(zidx);
+    
+    % Now apply time evolution during delay period
+    E1p = exp(-prep.t_delay/T1); 
+    M0(zidx) = E1p * M0(zidx) + (1-E1p);
+    
+end
 
 %%% Initialize RF rotation matrix, which is modified but not re-declared
 %%% each time
 T=sparse(zeros([N N]));
 
-% Initialise with thermal equilibrium
+% Initialial state is M0
 M(:,1) = M0; 
 zf = (1-E1);% thermal recovery of Mz in TR period
 
