@@ -74,14 +74,15 @@ end
 if isinf(kmax)
     % this flags that we don't want any pruning of pathways
     allpathways = true;
-    kmax = np - 1; % this is maximum value
+    kmax = np-1; 
 else
     allpathways = false;
 end
 
 %%% Variable pathways
 if allpathways
-    kmax_per_pulse = 0:kmax;
+    kmax_per_pulse = (0:kmax) + 1; %<-- +1 because (0:kmax) is correct after each RF pulse, but we must increase order by one to also deal with subsequent shift
+    kmax_per_pulse(kmax_per_pulse>kmax)=kmax; %<-- don't exceed kmax, we break after last RF pulse
 else
     kmax_per_pulse = [1:ceil(np/2) (floor(np/2)):-1:1];
     kmax_per_pulse(kmax_per_pulse>kmax)=kmax;
