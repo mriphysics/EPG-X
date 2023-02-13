@@ -106,3 +106,36 @@ for ii=1:3
 end
 setpospap([100 300 1000 400])
 print -dpng -r300 bin/bSSFPXfigure.png
+
+
+%% 2021-3-11: think about a bSSFP sequence with variable flips on each side
+
+TR = 2.025;
+alpha = 10;
+npulse = 1500;
+phi = RF_phase_cycle(npulse,'balanced');
+alpha = d2r(alpha)*ones(npulse,1);
+
+% different flip and phase for CSET pool
+alpha2 = 5;
+phi2 = 0*phi;
+
+% Run sims
+IX = 
+d_kHz = d_ppm(ii)*1e-6 * 3 * 42.58e3; %<- 3T, 42.58kHz/T
+    
+    for jj=1:n2
+        
+        k_Hz_ba = k_scaling(jj) * d_kHz*1e3;% solute to water exchange rate specified in paper
+        
+        k_Hz_ab = k_Hz_ba * f/(1-f); % EPG-X requires water to solute rate
+        
+ 
+        tic
+        [sx,Fnx,Znx] = EPGX_GRE_BM(alpha,phi,TR,T1x,T2x,...
+            f,k_Hz_ab*1e-3,'delta',d_kHz,'kmax',50);%<-- flip is same for both pools (v short pulses)
+        tt1=toc;
+
+        fprintf(1,'%d %d EPGX = %1.3f s \n',ii,jj,tt1);
+        M = fft(ifftshift(Fnx,1),[],1);
+        M = cat(1,M,M,M);
