@@ -123,8 +123,8 @@ end
     
 
 %%% Composite relax-shift
-ES=E*S;
-ES=sparse(ES);
+SE=S*E;
+SE=sparse(SE);
 
 %%% Pre-allocate RF matrix
 T = zeros(N,N);
@@ -159,7 +159,7 @@ FF(kidx) = A*FF(kidx); %<---- state straight after excitation, zero order only
 
 %%% Now simulate the dephase gradient & evolution, half the readout
 kidx=1:6;
-FF(kidx) = ES(kidx,kidx)*FF(kidx)+b(kidx);
+FF(kidx) = SE(kidx,kidx)*FF(kidx)+b(kidx);
 
 
 %% Now simulate the refocusing pulses
@@ -175,7 +175,7 @@ for jj=2:np
     FF(kidx)=T(kidx,kidx)*FF(kidx);
 
     % Now evolve for half echo spacing, store this as the echo
-    F(kidx,jj-1) = ES(kidx,kidx)*FF(kidx)+b(kidx);
+    F(kidx,jj-1) = SE(kidx,kidx)*FF(kidx)+b(kidx);
     % Deal with complex conjugate after shift
     F(1,jj-1)=conj(F(1,jj-1)); %<---- F0 comes from F-1 so conjugate
     
@@ -184,7 +184,7 @@ for jj=2:np
     end
     
     % Finally, evolve again up to next RF pulse
-    FF(kidx) = ES(kidx,kidx)*F(kidx,jj-1)+b(kidx);
+    FF(kidx) = SE(kidx,kidx)*F(kidx,jj-1)+b(kidx);
     FF(1)=conj(FF(1)); %<---- F0 comes from F-1 so conjugate 
     
 end
